@@ -8,10 +8,11 @@ public class GridManager : MonoBehaviour
 {
     [Header("Panel Information")]
     public Vector2Int Dimensions;
+    public uint DisabledTileCount;
     public RectTransform DrawPanel;
     [Header("Tile Settings")]
     public Sprite GridTileSprite;
-    public Color DefaultColor, SelectedColor;
+    public Color DefaultColor, SelectedColor, DisabledColor;
 
     [Header("Arrow Settings")]
     public Sprite ArrowEndPointSprite;
@@ -22,21 +23,30 @@ public class GridManager : MonoBehaviour
 
     [Header("Block Settings")]
     public GameObject BlockPrefab;
+    [HideInInspector] public TetrisBlockHolder BlockHolder;
 
-    public Transform SpawnLocation;
+    public Material DisabledBlockMaterial;
+    Material og_BlockMaterial;
+
 
 
     //PRIVATE VARIABLES
+    GameManager gameManager;
+    UIManager uIManager;
     private Stack<GridTile> DrawStack;
     private GridTile LastDrawnTile;
     private List<GridTile> AllTiles;
     [HideInInspector] public bool isDrawing;
     private Stack<Arrow> Arrows;
     private Arrow CurrentArrow;
-    void Start()
+    void Awake()
     {
-        AllTiles = new List<GridTile>(Dimensions.x * Dimensions.y);
-        Arrows = new Stack<Arrow>(Dimensions.x * Dimensions.y);
+        gameManager = FindObjectOfType<GameManager>();
+        uIManager = FindObjectOfType<UIManager>();
+        FindObjectOfType<UIManager>().HaloWidthInBlocks = Dimensions.x;
+        int size = Dimensions.x * Dimensions.y;
+        AllTiles = new List<GridTile>(size);
+        Arrows = new Stack<Arrow>(size);
         Vector2 TileDimensions = DrawPanel.rect.size / ((Vector2)Dimensions);
         for (int i = 0; i < Dimensions.x; i++)
         {
@@ -45,10 +55,36 @@ public class GridManager : MonoBehaviour
                 AllTiles.Add(CreateTile(i, j, TileDimensions, ArrowEndPointColor));
             }
         }
-        DrawStack = new Stack<GridTile>(Dimensions.x * Dimensions.y);
- 
+        DrawStack = new Stack<GridTile>(size);
+    }
+    void Start()
+    {
+        DisableRandomly();
+    }
 
+    public void InitializeBlock()
+    {
+        BlockPrefab = Instantiate(BlockPrefab,SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(-10,-10)),Quaternion.identity);
+        BlockPrefab.name = "Temporary Block Prefab Copy";
+        MeshRenderer BlockMeshRenderer = BlockPrefab.GetComponentInChildren<MeshRenderer>();
+        og_BlockMaterial = BlockMeshRenderer.material;
+        BlockMeshRenderer.material = DisabledBlockMaterial;
+    }
 
+    void DisableRandomly()
+    {
+        int disabled = 0;
+        for (int i = 0; i < AllTiles.Count; i++)
+        {
+            int left = AllTiles.Count - i;
+            float probability = (float)(DisabledTileCount - disabled) / (float)left;
+            float rand = Random.Range(0f, 1f);
+            if (rand < probability)
+            {
+                AllTiles[i].ChangeDraw(GridTile.STATE.DISABLED);
+                disabled++;
+            }
+        }
     }
 
     GridTile CreateTile(int x, int y, Vector2 TileDimension, Color color)
@@ -71,17 +107,29 @@ public class GridManager : MonoBehaviour
         gt.ArrowColor = color;
         gt.gridManager = this;
         gt.CenterOffset = new Vector2(TileDimension.x / 2f, -TileDimension.y / 2f);
+        gt.Init();
         return gt;
+    }
+
+    public void StartDraw()
+    {
+        isDrawing = true;
+        if(BlockHolder == null)
+        {
+        GameObject BlockHolderGO = new GameObject("BlockHolder");
+        BlockHolderGO.transform.position = Vector3.zero;
+        BlockHolderGO.transform.SetParent(gameManager.SpawnLocation,false);
+        BlockHolder = BlockHolderGO.AddComponent<TetrisBlockHolder>();
+        }
     }
 
     void EndDraw()
     {
-
         RegisterLastDrawn();
         while (DrawStack.Count > 0)
         {
             GridTile gt = DrawStack.Pop();
-            gt.ChangeDraw(false);
+            gt.ChangeDraw(GridTile.STATE.AVAILABLE);
         }
 
         while (Arrows.Count > 0)
@@ -90,6 +138,7 @@ public class GridManager : MonoBehaviour
         }
         if (CurrentArrow != null) { CurrentArrow.Kill(); CurrentArrow = null; }
         isDrawing = false;
+
     }
 
     void RegisterLastDrawn()
@@ -106,7 +155,7 @@ public class GridManager : MonoBehaviour
         //SPAWN
         if (Input.GetMouseButtonUp(0) && isDrawing)
         {
-            SpawnBlock(DrawStack);
+            SpawnBlock();
             EndDraw();
         }
 
@@ -131,6 +180,11 @@ public class GridManager : MonoBehaviour
 
     bool isTileAppropriate(GridTile tile)
     {
+        if (tile.GetTileState() == GridTile.STATE.DISABLED)
+        {
+            return false;
+        }
+
         bool app = true;
         if (LastDrawnTile != null)
         {
@@ -157,7 +211,7 @@ public class GridManager : MonoBehaviour
             Arrow lastarr = Arrows.Pop();
             CurrentArrow.SetStart(lastarr.GetStartPos());
             lastarr.Kill();
-            LastDrawnTile.ChangeDraw(false);
+            LastDrawnTile.ChangeDraw(GridTile.STATE.AVAILABLE);
             LastDrawnTile = gt2;
         }
         else if (DrawStack.Contains(tile))
@@ -168,7 +222,7 @@ public class GridManager : MonoBehaviour
         {
             RegisterLastDrawn();
             LastDrawnTile = tile;
-            tile.ChangeDraw(true);
+            tile.ChangeDraw(GridTile.STATE.SELECTED);
 
             if (CurrentArrow != null)
             {
@@ -181,25 +235,28 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void SpawnBlock(IEnumerable<GridTile> DrawList)
+    public void SpawnBlock()
     {
-        
-        GameObject BlockHolder = new GameObject("BlockHolder");
-        Vector3 size = BlockPrefab.GetComponent<MeshRenderer>().bounds.size;
+
+        if (BlockHolder.transform.childCount < 2) return;
+        BlockHolder.transform.SetParent(null);
+        BlockHolder.isFree = true;
+        BlockHolder = null;
         RegisterLastDrawn();
-        Vector2 CoordCenter = Vector2.zero;
-        int c = 0;
-        foreach (GridTile gt in DrawList)
+        foreach(GridTile gt in DrawStack)
         {
-            c++;
-            GameObject go = Instantiate(BlockPrefab, Vector3.zero, Quaternion.identity);
-            go.transform.SetParent(BlockHolder.transform, false);
-            go.transform.position = new Vector3(gt.Coordinates.x *size.x, -gt.Coordinates.y*size.y, 0);
-            CoordCenter += (Vector2) go.transform.position;
+            if(gt.Block!=null){
+            gt.Block.GetComponentInChildren<MeshRenderer>().material = og_BlockMaterial;
+            TetrisBlock tb = gt.Block.gameObject.AddComponent<TetrisBlock>();
+            tb.Coordx = uIManager.Coordx + gt.Coordinates.x;
+            tb.localCoordy = gt.Coordinates.y;
+            gt.Block = null;
+            }
+            else{
+              /*   Debug.LogError(gt.Coordinates);
+                Debug.Break(); */
+            }
         }
-        if(c!=0) CoordCenter /= c;
-        BlockHolder.AddComponent<TetrisBlock>();
-        BlockHolder.transform.position = SpawnLocation.position -  (Vector3) CoordCenter;
     }
 }
 
@@ -256,7 +313,6 @@ public class Arrow
 
     public void Draw()
     {
-
         var rt = Line.GetComponent<RectTransform>();
         Vector3 differenceVector = EndPos - StartPos;
         rt.sizeDelta = new Vector2(differenceVector.magnitude, LineWidth);

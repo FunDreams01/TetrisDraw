@@ -6,41 +6,66 @@ using UnityEngine.UI;
 
 public class GridTile : MonoBehaviour
 {
+    public enum STATE {
+        AVAILABLE,
+        SELECTED,
+        DISABLED
+    }
+
     public Vector2Int Coordinates;
     public GridManager gridManager;
-    private bool selected;
+    private STATE TileState;
 
     public Vector2 CenterOffset;
 
     private GameObject ArrowEndPoint;
 
-    public Color ArrowColor;
-    public void ChangeDraw(bool isSelected)
-    {
-        selected = isSelected;
-        ArrowEndPoint.SetActive(isSelected);
-        if(isSelected)
-        {
-            GetComponent<Image>().color = gridManager.SelectedColor;
-        }
-        else
-        {
-            GetComponent<Image>().color = gridManager.DefaultColor;
-        }
+    public GameObject Block;
 
+    public Color ArrowColor;
+    public void ChangeDraw(STATE NewState)
+    {
+        ArrowEndPoint.SetActive(NewState == STATE.SELECTED);
+        switch (NewState){
+        case STATE.SELECTED:
+            GetComponent<Image>().color = gridManager.SelectedColor;
+            if(Block == null)
+            {
+            Block = Instantiate(gridManager.BlockPrefab,Vector3.zero,Quaternion.identity);
+            Vector3 pos = Block.transform.position;
+            pos += SpaceConversionUtility.LeftDir * Coordinates.x;
+            pos -= SpaceConversionUtility.UpDir * Coordinates.y;
+            Block.transform.position = pos;
+            Block.transform.SetParent(gridManager.BlockHolder.transform,false);
+            }
+        break;
+        case STATE.AVAILABLE:
+            if(Block!=null) {
+                Destroy(Block.gameObject);
+                Block = null;
+            }
+            GetComponent<Image>().color = gridManager.DefaultColor;
+        break;
+        case STATE.DISABLED:
+            if(Block!=null) {
+                Destroy(Block.gameObject);
+                Block = null;
+            }
+            GetComponent<Image>().color = gridManager.DisabledColor;
+        break;
+        }
+        TileState = NewState;
     }
+
+    public STATE GetTileState() {return TileState;}
 
     public Vector2 GetCenterAnchoredPosition () {
         
         return (Vector2) GetComponent<RectTransform>().anchoredPosition + CenterOffset;
     }
 
-    GridTile(Color ArrowColor)
-    {
-        
-    }
 
-    void Start()
+    public void Init()
     {
         EventTrigger MyEventTrigger = gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry PointerDownEntry = new EventTrigger.Entry();
@@ -68,7 +93,7 @@ public class GridTile : MonoBehaviour
 
     public void MyOnPointerDownDelegate(PointerEventData data)
     {
-        gridManager.isDrawing = true;
+        gridManager.StartDraw();
         gridManager.RegisterToDrawBuffer(this);
     }
     
