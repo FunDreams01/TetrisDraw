@@ -32,17 +32,20 @@ public class GridManager : MonoBehaviour
 
     //PRIVATE VARIABLES
     GameManager gameManager;
-    UIManager uIManager;
+    [HideInInspector] public UIManager uIManager;
     private Stack<GridTile> DrawStack;
     private GridTile LastDrawnTile;
     private List<GridTile> AllTiles;
     [HideInInspector] public bool isDrawing;
     private Stack<Arrow> Arrows;
     private Arrow CurrentArrow;
+
+    LevelManager levelManager;
     void Awake()
     {
         gameManager = FindObjectOfType<GameManager>();
         uIManager = FindObjectOfType<UIManager>();
+        levelManager = FindObjectOfType<LevelManager>();
         FindObjectOfType<UIManager>().HaloWidthInBlocks = Dimensions.x;
         int size = Dimensions.x * Dimensions.y;
         AllTiles = new List<GridTile>(size);
@@ -64,7 +67,7 @@ public class GridManager : MonoBehaviour
 
     public void InitializeBlock()
     {
-        BlockPrefab = Instantiate(BlockPrefab,SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(-10,-10)),Quaternion.identity);
+        BlockPrefab = Instantiate(BlockPrefab, SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(-10, -10)), Quaternion.identity);
         BlockPrefab.name = "Temporary Block Prefab Copy";
         MeshRenderer BlockMeshRenderer = BlockPrefab.GetComponentInChildren<MeshRenderer>();
         og_BlockMaterial = BlockMeshRenderer.material;
@@ -111,19 +114,44 @@ public class GridManager : MonoBehaviour
         return gt;
     }
 
+    void UpdateCollidingTile()
+    {
+        int minDist = int.MinValue;
+        GridTile minGT = null;
+        foreach (GridTile gt in DrawStack)
+        {
+            int dist = levelManager.TopGridIndexPerColumn[gt.Block.GetComponent<TetrisBlock>().Coordx] + gt.Block.GetComponent<TetrisBlock>().localCoordy;
+            if (dist > minDist)
+            {
+                minGT = gt;
+                minDist = dist;
+            }
+        }
+
+
+
+        int last_dist = levelManager.TopGridIndexPerColumn[LastDrawnTile.Block.GetComponent<TetrisBlock>().Coordx] + LastDrawnTile.Block.GetComponent<TetrisBlock>().localCoordy;
+        if (last_dist > minDist)
+        {
+            minGT = LastDrawnTile;
+        }
+        BlockHolder.CollidingTile = minGT;
+    }
+
+
     public void StartDraw()
     {
         isDrawing = true;
-        if(BlockHolder == null)
+        if (BlockHolder == null)
         {
-        GameObject BlockHolderGO = new GameObject("BlockHolder");
-        BlockHolderGO.transform.position = Vector3.zero;
-        BlockHolderGO.transform.SetParent(gameManager.SpawnLocation,false);
-        BlockHolder = BlockHolderGO.AddComponent<TetrisBlockHolder>();
+            GameObject BlockHolderGO = new GameObject("BlockHolder");
+            BlockHolderGO.transform.position = Vector3.zero;
+            BlockHolderGO.transform.SetParent(gameManager.SpawnLocation, false);
+            BlockHolder = BlockHolderGO.AddComponent<TetrisBlockHolder>();
         }
     }
 
-    void EndDraw()
+    public void EndDraw()
     {
         RegisterLastDrawn();
         while (DrawStack.Count > 0)
@@ -131,14 +159,12 @@ public class GridManager : MonoBehaviour
             GridTile gt = DrawStack.Pop();
             gt.ChangeDraw(GridTile.STATE.AVAILABLE);
         }
-
         while (Arrows.Count > 0)
         {
             Arrows.Pop().Kill();
         }
         if (CurrentArrow != null) { CurrentArrow.Kill(); CurrentArrow = null; }
         isDrawing = false;
-
     }
 
     void RegisterLastDrawn()
@@ -233,6 +259,9 @@ public class GridManager : MonoBehaviour
 
             CurrentArrow = new Arrow(tile.GetCenterAnchoredPosition(), tile.GetCenterAnchoredPosition(), DrawPanel, ArrowBaseWidth, ArrowBaseColor);
         }
+
+        UpdateCollidingTile();
+        uIManager.MoveSpawnerOnly();
     }
 
     public void SpawnBlock()
@@ -240,21 +269,22 @@ public class GridManager : MonoBehaviour
 
         if (BlockHolder.transform.childCount < 2) return;
         BlockHolder.transform.SetParent(null);
+        //Vector3 newpos = BlockHolder.transform.position;
+        BlockHolder.transform.position = gameManager.SpawnLocation.position;
         BlockHolder.isFree = true;
         BlockHolder = null;
         RegisterLastDrawn();
-        foreach(GridTile gt in DrawStack)
+        foreach (GridTile gt in DrawStack)
         {
-            if(gt.Block!=null){
-            gt.Block.GetComponentInChildren<MeshRenderer>().material = og_BlockMaterial;
-            TetrisBlock tb = gt.Block.gameObject.AddComponent<TetrisBlock>();
-            tb.Coordx = uIManager.Coordx + gt.Coordinates.x;
-            tb.localCoordy = gt.Coordinates.y;
-            gt.Block = null;
+            if (gt.Block != null)
+            {
+                gt.Block.GetComponentInChildren<MeshRenderer>().material = og_BlockMaterial;
+                gt.Block = null;
             }
-            else{
-              /*   Debug.LogError(gt.Coordinates);
-                Debug.Break(); */
+            else
+            {
+                /*   Debug.LogError(gt.Coordinates);
+                  Debug.Break(); */
             }
         }
     }

@@ -5,20 +5,28 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    int level = 0;
+    public int level = 0;
     public GameObject BlockPrefab;
     public float newLevelTimeInSeconds;
-    public float HoleProbability;
-    public float IncreaseInVerticalProbability;
-    public float IncreaseInHorizontalProbability;
+    public int StartingLevelsCount;
     float lastTime = -1f;
-    public Transform LevelHolder;
-    public Vector3[] TopPositionPerColumn;
-    public int[] TopGridIndexPerColumn;
+    [HideInInspector] public Transform LevelHolder;
+    [HideInInspector] public Vector3[] TopPositionPerColumn;
+    [HideInInspector] public int[] TopGridIndexPerColumn;
+
+    public int MaxLevelsToGenerateInTotal;
+    public int LoseLevels;
 
     UIManager uIManager;
     public List<List<LevelBlock>> Levels;
 
+    int created = 0;
+    GameManager gameManager;
+
+    [Header("Probabilities")]
+    public float HoleProbability;
+    public float IncreaseInVerticalProbability;
+    public float IncreaseInHorizontalProbability;
     private void Awake()
     {
         uIManager = FindObjectOfType<UIManager>();
@@ -26,6 +34,7 @@ public class LevelManager : MonoBehaviour
         LevelHolder = LevelHolderGO.transform;
         prev = new List<int>(0);
         Levels = new List<List<LevelBlock>>(SpaceConversionUtility.ScreenHeightInBlocks);
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     LevelBlock GenerateBlock(Vector2Int Coords)
@@ -41,28 +50,46 @@ public class LevelManager : MonoBehaviour
     }
 
 
+    public void CheckLevelCompletionDelayed()
+    {
+        Invoke("CheckLevelCompletion", gameManager.BlockDisappearDelay);
+    }
+
     //REMEMBER TO OPTIMIZE?
     public void CheckLevelCompletion()
     {
         int destroyed = 0;
         for (int i = Levels.Count - 1; i >= 0; i--)
         {
-            for(int m = 0 ; m < destroyed; m++)
-            for(int k = 0; k < Levels[i].Count; k++)
-            {
-                if(Levels[i][k]!=null)                
-                Levels[i][k].transform.position -= SpaceConversionUtility.UpDir;
-            }
+            for (int m = 0; m < destroyed; m++)
+                for (int k = 0; k < Levels[i].Count; k++)
+                {
+                    if (Levels[i][k] != null)
+                        Levels[i][k].transform.position -= SpaceConversionUtility.UpDir;
+                }
 
             if (!Levels[i].Contains(null))
-            {destroyed++;
-                for(int j = 0; j < Levels[i].Count; j++)
+            {
+                destroyed++;
+                for (int j = 0; j < Levels[i].Count; j++)
                 {
-                    Destroy(Levels[i][j].gameObject);
+                    GameObject go = Levels[i][j].gameObject;
+                    go.transform.SetParent(null);
+                    Destroy(go);
                 }
-            Levels.RemoveAt(i);
-            level--;
+                Levels.RemoveAt(i);
+                level--;
             }
+        }
+        if (Levels.Count == 0 || LevelHolder.childCount == 0)
+        {
+            uIManager.Win();
+        }
+        ReCalcTopPos();
+
+        if (Levels.Count > LoseLevels)
+        {
+            uIManager.Lose();
         }
 
     }
@@ -71,11 +98,11 @@ public class LevelManager : MonoBehaviour
     {
         List<string> a = new List<string>();
         a.Add("\n");
-        for(int i = 0; i < Levels.Count; i++)
+        for (int i = 0; i < Levels.Count; i++)
         {
-            for(int j = 0; j < Levels[i].Count ;j++)
+            for (int j = 0; j < Levels[i].Count; j++)
             {
-                a.Add((Levels[i][j]==null) ? "N" : "D");
+                a.Add((Levels[i][j] == null) ? "N" : "D");
             }
             a.Add("\n");
         }
@@ -85,7 +112,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if(!Application.isPlaying || Time.frameCount < 10) return;
+        if (!Application.isPlaying || Time.frameCount < 10) return;
         Gizmos.color = Color.red;
         for (int i = 0; i < TopPositionPerColumn.Length; i++)
         {
@@ -96,6 +123,7 @@ public class LevelManager : MonoBehaviour
     List<int> prev;
     public List<LevelBlock> CreateNewLevel()
     {
+        created++;
         level++;
         List<LevelBlock> ThisLevel = new List<LevelBlock>(uIManager.ScreenWidthInBlocks);
         LevelHolder.position += SpaceConversionUtility.UpDir;
@@ -155,25 +183,42 @@ public class LevelManager : MonoBehaviour
                 else if (row == 0)
                 {
                     TopPositionPerColumn[column] = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(column, -1));
-                    TopGridIndexPerColumn[column] = -1; 
+                    TopGridIndexPerColumn[column] = -1;
                 }
 
             }
         }
-    //    Debug.Log(this);
+        for (int i = Levels.Count - 1; i >= 0; i--)
+        {
+            if (Levels[i].Count == 0) Levels.RemoveAt(i);
+        }
+        //    Debug.Log(this);
     }
 
     public void AddLevel()
     {
-       Levels.Add(CreateNewLevel());
+        Levels.Add(CreateNewLevel());
         ReCalcTopPos();
     }
+
+    public void Restart()
+    {
+
+    }
+
+    public void Next()
+    {
+
+    }
+
     private void Update()
     {
-        if (Time.time - lastTime >= newLevelTimeInSeconds)
-        {
-            lastTime = Time.time;
-            AddLevel();
-        }
+        if (created < MaxLevelsToGenerateInTotal)
+            if (Time.time - lastTime >= newLevelTimeInSeconds)
+            {
+                lastTime = Time.time;
+                AddLevel();
+            }
+        Debug.Log(Levels.Count);
     }
 }

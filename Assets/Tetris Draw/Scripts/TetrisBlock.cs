@@ -8,6 +8,10 @@ public class TetrisBlockHolder : MonoBehaviour
     UIManager uIManager;
     LevelManager levelManager;
     float acc = +7f;
+    public static float InitialAcceleration; 
+    public static float JerkMultiplier;
+
+    public GridTile CollidingTile;
 
     public bool isFree;
 
@@ -25,6 +29,7 @@ public class TetrisBlockHolder : MonoBehaviour
             min_y[tb.Coordx] = Mathf.Min(min_y[tb.Coordx], tb.localCoordy);
         }
         absolute_min_y = Mathf.Min(min_y);
+        acc = InitialAcceleration;
 
 
 
@@ -61,7 +66,7 @@ public class TetrisBlockHolder : MonoBehaviour
         if (cont)
         {
             velocity.y -= acc * Time.deltaTime;
-            acc = acc + acc * (2.2f * Time.deltaTime);
+            acc = acc + acc * (JerkMultiplier * Time.deltaTime);
             transform.position = newpos;
         }
         else
@@ -125,23 +130,16 @@ public class TetrisBlockHolder : MonoBehaviour
             Destroy(tb);
         }
         Destroy(tetrisBlock);
+        Destroy(gameObject);
 
-        levelManager.CheckLevelCompletion();
         levelManager.ReCalcTopPos();
+        levelManager.CheckLevelCompletionDelayed();
     }
 
 }
 
 public class TetrisBlock : MonoBehaviour
 {
-
     public int Coordx;
     public int localCoordy;
-
-
-
-
-
-
-
 }

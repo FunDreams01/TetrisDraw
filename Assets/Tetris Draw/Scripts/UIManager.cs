@@ -19,10 +19,13 @@ public class UIManager : MonoBehaviour
     public RawImage TetrisImage;
     public Camera TetrisCamera;
     public RectTransform HaloParent;
+    public GameObject WinScreen, LoseScreen;
 
     //PRIVATE VARS
     GameManager gameManager;
+    LevelManager levelManager;
     RectTransform Halo;
+    GridManager gridManager;
 
     //UNITY FUNCTIONS
 
@@ -30,12 +33,14 @@ public class UIManager : MonoBehaviour
     {
         gameManager = FindObjectOfType<GameManager>();
         SpaceConversionUtility.ScreenWidthInBlocks = ScreenWidthInBlocks;
+        levelManager = FindObjectOfType<LevelManager>();
+        gridManager = FindObjectOfType<GridManager>();
     }
 
     private void OnDrawGizmos()
     {
 
-        if(!Application.isPlaying || Time.frameCount < 10) return;
+        if (!Application.isPlaying || Time.frameCount < 10) return;
         for (int i = 0; i < ScreenWidthInBlocks; i++)
         {
             for (int j = 0; j < 20; j++)
@@ -45,6 +50,18 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+
+    public void Win()
+    {
+        WinScreen.SetActive(true);
+    }
+
+    public void Lose()
+    {
+        LoseScreen.SetActive(true);
+    }
+
+
     void Update()
     {
         if (Time.frameCount == 1)
@@ -54,7 +71,8 @@ public class UIManager : MonoBehaviour
             GenerateHaloImage();
             MoveHaloAndSpawner(Halo.anchoredPosition);
             FindObjectOfType<GridManager>().InitializeBlock();
-            FindObjectOfType<LevelManager>().AddLevel();
+            for (int i = 0; i < levelManager.StartingLevelsCount; i++)
+                levelManager.AddLevel();
         }
         else if (Time.frameCount > 1)
         {
@@ -70,16 +88,46 @@ public class UIManager : MonoBehaviour
         }
     }
 
-
-    [HideInInspector] public int Coordx; 
+    [HideInInspector] public int Coordx;
     //UI FUNCTIONS
+
+
+    public void MoveSpawnerOnly()
+    {
+        if (gridManager.isDrawing && gridManager.BlockHolder != null && gridManager.BlockHolder.CollidingTile != null && gridManager.BlockHolder.CollidingTile.Block != null)
+        {
+
+            foreach(var t in FindObjectsOfType<TetrisBlockHolder>())
+            {
+                if(t.isFree)
+                {
+                    return;
+                }
+            }
+
+            TetrisBlock tetrisBlock = gridManager.BlockHolder.CollidingTile.Block.GetComponent<TetrisBlock>();
+        //    Debug.Log(tetrisBlock.Coordx + " " + tetrisBlock.localCoordy);
+            int yForTB = levelManager.TopGridIndexPerColumn[tetrisBlock.Coordx] + 1;
+            Vector3 newPosforTB = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(tetrisBlock.Coordx, yForTB));
+            Vector3 disp = newPosforTB - tetrisBlock.transform.position;
+            gridManager.BlockHolder.transform.position = gridManager.BlockHolder.transform.position + disp;
+        }
+    }
     public void MoveHaloAndSpawner(Vector3 RectCoords)
     {
+        if(gridManager.isDrawing)
+        {
+            gridManager.EndDraw();
+        }
         Halo.anchoredPosition = new Vector2(RectCoords.x, 0);
         Halo.anchoredPosition = SpaceConversionUtility.SnapRectPosToGridRectPos(Halo.anchoredPosition, out Coordx, 0, SpaceConversionUtility.ScreenWidthInBlocks - HaloWidthInBlocks);
         Vector3 v = gameManager.SpawnLocation.position;
+
         v = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(Coordx, SpaceConversionUtility.ScreenHeightInBlocks - SpawnerOffsetFromTop));
+
+        //  v = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(Coordx, ));
         gameManager.SpawnLocation.position = v;
+        MoveSpawnerOnly();
     }
 
     public void AdjustRenderStuff()

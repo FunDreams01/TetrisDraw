@@ -37,6 +37,7 @@ public class GridTile : MonoBehaviour
             pos -= SpaceConversionUtility.UpDir * Coordinates.y;
             Block.transform.position = pos;
             Block.transform.SetParent(gridManager.BlockHolder.transform,false);
+            TetrisBlock tb = Block.gameObject.AddComponent<TetrisBlock>();
             }
         break;
         case STATE.AVAILABLE:
@@ -53,6 +54,13 @@ public class GridTile : MonoBehaviour
             }
             GetComponent<Image>().color = gridManager.DisabledColor;
         break;
+        }
+        if(Block!=null)
+        {
+
+            TetrisBlock tb = Block.gameObject.GetComponent<TetrisBlock>();
+            tb.Coordx = gridManager.uIManager.Coordx + Coordinates.x;
+            tb.localCoordy = Coordinates.y;
         }
         TileState = NewState;
     }
