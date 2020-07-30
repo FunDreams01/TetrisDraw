@@ -23,14 +23,15 @@ public class GridManager : MonoBehaviour
 
     [Header("Block Settings")]
     public GameObject BlockPrefab;
-    [HideInInspector] public TetrisBlockHolder BlockHolder;
+    [HideInInspector] public TetrisBlockHolder BlockHolder, UpperBlockHolder;
 
-    public Material DisabledBlockMaterial;
-    Material og_BlockMaterial;
+    public Material DisabledBlockMaterial, SilhuetteMaterial;
 
 
 
     //PRIVATE VARIABLES
+    Material og_BlockMaterial;
+    [HideInInspector] public GameObject SilhuettePrefab;
     GameManager gameManager;
     [HideInInspector] public UIManager uIManager;
     private Stack<GridTile> DrawStack;
@@ -72,6 +73,10 @@ public class GridManager : MonoBehaviour
         MeshRenderer BlockMeshRenderer = BlockPrefab.GetComponentInChildren<MeshRenderer>();
         og_BlockMaterial = BlockMeshRenderer.material;
         BlockMeshRenderer.material = DisabledBlockMaterial;
+        SilhuettePrefab = Instantiate(BlockPrefab);
+        SilhuettePrefab.name = "Temporary Silhuette Prefab";
+        SilhuettePrefab.GetComponentInChildren<MeshRenderer>().material = SilhuetteMaterial;
+
     }
 
     void DisableRandomly()
@@ -148,6 +153,13 @@ public class GridManager : MonoBehaviour
             BlockHolderGO.transform.position = Vector3.zero;
             BlockHolderGO.transform.SetParent(gameManager.SpawnLocation, false);
             BlockHolder = BlockHolderGO.AddComponent<TetrisBlockHolder>();
+        }
+        if(UpperBlockHolder == null)
+        {
+            GameObject BlockHolderGO = new GameObject("UpperBlockHolder");
+            BlockHolderGO.transform.position = Vector3.zero;
+            BlockHolderGO.transform.SetParent(gameManager.SpawnLocation, false);
+            UpperBlockHolder = BlockHolderGO.AddComponent<TetrisBlockHolder>();
         }
     }
 
@@ -267,19 +279,22 @@ public class GridManager : MonoBehaviour
     public void SpawnBlock()
     {
 
-        if (BlockHolder.transform.childCount < 2) return;
-        BlockHolder.transform.SetParent(null);
+        if (UpperBlockHolder.transform.childCount < 2) return;
+        UpperBlockHolder.transform.SetParent(null);
         //Vector3 newpos = BlockHolder.transform.position;
-        BlockHolder.transform.position = gameManager.SpawnLocation.position;
-        BlockHolder.isFree = true;
+        UpperBlockHolder.transform.position = gameManager.SpawnLocation.position;
+        UpperBlockHolder.isFree = true;
+        UpperBlockHolder = null;
+        Destroy(BlockHolder.gameObject);
         BlockHolder = null;
         RegisterLastDrawn();
         foreach (GridTile gt in DrawStack)
         {
-            if (gt.Block != null)
+            gt.Block = null;
+            if (gt.UpperBlock != null)
             {
-                gt.Block.GetComponentInChildren<MeshRenderer>().material = og_BlockMaterial;
-                gt.Block = null;
+                gt.UpperBlock.GetComponentInChildren<MeshRenderer>().material = og_BlockMaterial;
+                gt.UpperBlock = null;
             }
             else
             {

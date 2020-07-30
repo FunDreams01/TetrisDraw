@@ -199,6 +199,7 @@ public class LevelManager : MonoBehaviour
     {
         Levels.Add(CreateNewLevel());
         ReCalcTopPos();
+        uIManager.MoveSpawnerOnly();
     }
 
     public void Restart()

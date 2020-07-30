@@ -101,10 +101,23 @@ public class UIManager : MonoBehaviour
             {
                 if(t.isFree)
                 {
-                    return;
+                    Transform first = gridManager.BlockHolder.transform;
+                    for(int i = 0; i < first.childCount; i++)
+                    {
+                        Transform second = t.transform;
+                        for(int j = 0; j < second.childCount; j++)
+                        {
+                            if(first.GetChild(i).GetComponent<TetrisBlock>().Coordx == second.GetChild(j).GetComponent<TetrisBlock>().Coordx)
+                            {
+                                gridManager.BlockHolder.gameObject.SetActive(false);
+                                return;
+                            }
+                        }
+                    }
                 }
             }
 
+            if(!gridManager.BlockHolder.gameObject.activeSelf) gridManager.BlockHolder.gameObject.SetActive(true);
             TetrisBlock tetrisBlock = gridManager.BlockHolder.CollidingTile.Block.GetComponent<TetrisBlock>();
         //    Debug.Log(tetrisBlock.Coordx + " " + tetrisBlock.localCoordy);
             int yForTB = levelManager.TopGridIndexPerColumn[tetrisBlock.Coordx] + 1;
