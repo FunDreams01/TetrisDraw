@@ -206,11 +206,11 @@ public class GridManager : MonoBehaviour
         {
 
             var rt2 = DrawPanel.GetComponent<RectTransform>();
-            Vector3 sizeDelta = new Vector3(rt2.sizeDelta.x / 2, -rt2.sizeDelta.y / 2, 0);
+            Vector3 sizeDelta = new Vector3(rt2.sizeDelta.x / 2, -rt2.sizeDelta.y, 0);
             Vector2 pt;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(DrawPanel, Input.mousePosition, null, out pt);
-
-            CurrentArrow.SetEnd((Vector3)pt + sizeDelta);
+            Debug.Log((Vector3)pt);
+            CurrentArrow.SetEnd((Vector3)pt + (sizeDelta));
             CurrentArrow.Draw();
         }
 

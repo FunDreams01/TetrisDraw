@@ -2834,7 +2834,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -40, y: -70}
+  m_SizeDelta: {x: -6, y: -20.000006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1072643942
 CanvasRenderer:
@@ -3608,7 +3608,7 @@ RectTransform:
   m_GameObject: {fileID: 1349349991}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.9731002, y: 1.9731002, z: 1.9731002}
+  m_LocalScale: {x: 1.9731003, y: 1.9731003, z: 1.9731003}
   m_Children: []
   m_Father: {fileID: 1592040607}
   m_RootOrder: 0
@@ -4707,8 +4707,11 @@ MonoBehaviour:
   BlockPrefab: {fileID: 8264885288086567769, guid: 969b3cc5780c4cd6fa5cb1ec632c5afe,
     type: 3}
   BlockHolder: {fileID: 0}
+  UpperBlockHolder: {fileID: 0}
   DisabledBlockMaterial: {fileID: 2100000, guid: 02d3ecb3198e5d575907c82dc76aa14a,
     type: 2}
+  SilhuetteMaterial: {fileID: 0}
+  SilhuettePrefab: {fileID: 0}
   uIManager: {fileID: 0}
   isDrawing: 0
 --- !u!4 &1789352391

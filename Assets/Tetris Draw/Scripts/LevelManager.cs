@@ -220,6 +220,6 @@ public class LevelManager : MonoBehaviour
                 lastTime = Time.time;
                 AddLevel();
             }
-        Debug.Log(Levels.Count);
+//        Debug.Log(Levels.Count);
     }
 }
