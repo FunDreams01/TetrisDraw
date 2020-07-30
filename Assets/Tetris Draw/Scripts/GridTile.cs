@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class GridTile : MonoBehaviour
 {
-    public enum STATE {
+    public enum STATE
+    {
         AVAILABLE,
         SELECTED,
         DISABLED
@@ -21,55 +22,86 @@ public class GridTile : MonoBehaviour
     private GameObject ArrowEndPoint;
 
     public GameObject Block;
+    public GameObject UpperBlock;
 
     public Color ArrowColor;
     public void ChangeDraw(STATE NewState)
     {
         ArrowEndPoint.SetActive(NewState == STATE.SELECTED);
-        switch (NewState){
-        case STATE.SELECTED:
-            GetComponent<Image>().color = gridManager.SelectedColor;
-            if(Block == null)
-            {
-            Block = Instantiate(gridManager.BlockPrefab,Vector3.zero,Quaternion.identity);
-            Vector3 pos = Block.transform.position;
-            pos += SpaceConversionUtility.LeftDir * Coordinates.x;
-            pos -= SpaceConversionUtility.UpDir * Coordinates.y;
-            Block.transform.position = pos;
-            Block.transform.SetParent(gridManager.BlockHolder.transform,false);
-            TetrisBlock tb = Block.gameObject.AddComponent<TetrisBlock>();
-            }
-        break;
-        case STATE.AVAILABLE:
-            if(Block!=null) {
-                Destroy(Block.gameObject);
-                Block = null;
-            }
-            GetComponent<Image>().color = gridManager.DefaultColor;
-        break;
-        case STATE.DISABLED:
-            if(Block!=null) {
-                Destroy(Block.gameObject);
-                Block = null;
-            }
-            GetComponent<Image>().color = gridManager.DisabledColor;
-        break;
+        switch (NewState)
+        {
+            case STATE.SELECTED:
+                GetComponent<Image>().color = gridManager.SelectedColor;
+                if (Block == null)
+                {
+                    Block = Instantiate(gridManager.SilhuettePrefab, Vector3.zero, Quaternion.identity);
+                    Vector3 pos = Block.transform.position;
+                    pos += SpaceConversionUtility.LeftDir * Coordinates.x;
+                    pos -= SpaceConversionUtility.UpDir * Coordinates.y;
+                    Block.transform.position = pos;
+                    Block.transform.SetParent(gridManager.BlockHolder.transform, false);
+                    TetrisBlock tb = Block.gameObject.AddComponent<TetrisBlock>();
+                }
+                if (UpperBlock == null)
+                {
+                    UpperBlock = Instantiate(gridManager.BlockPrefab, Vector3.zero, Quaternion.identity);
+                    Vector3 pos = UpperBlock.transform.position;
+                    pos += SpaceConversionUtility.LeftDir * Coordinates.x;
+                    pos -= SpaceConversionUtility.UpDir * Coordinates.y;
+                    UpperBlock.transform.position = pos;
+                    UpperBlock.transform.SetParent(gridManager.UpperBlockHolder.transform, false);
+                    TetrisBlock tb = UpperBlock.gameObject.AddComponent<TetrisBlock>();
+                }
+                break;
+            case STATE.AVAILABLE:
+                if (Block != null)
+                {
+                    Destroy(Block.gameObject);
+                    Block = null;
+                }
+                if(UpperBlock!=null)
+                {
+                    Destroy(UpperBlock.gameObject);
+                    UpperBlock = null;
+                }
+                GetComponent<Image>().color = gridManager.DefaultColor;
+                break;
+            case STATE.DISABLED:
+                if (Block != null)
+                {
+                    Destroy(Block.gameObject);
+                    Block = null;
+                }
+                if(UpperBlock!=null)
+                {
+                    Destroy(UpperBlock.gameObject);
+                    UpperBlock = null;
+                }
+                GetComponent<Image>().color = gridManager.DisabledColor;
+                break;
         }
-        if(Block!=null)
+        if (Block != null)
         {
 
             TetrisBlock tb = Block.gameObject.GetComponent<TetrisBlock>();
             tb.Coordx = gridManager.uIManager.Coordx + Coordinates.x;
             tb.localCoordy = Coordinates.y;
         }
+        if (UpperBlock != null)
+        {
+            TetrisBlock tb = UpperBlock.gameObject.GetComponent<TetrisBlock>();
+            tb.Coordx = gridManager.uIManager.Coordx + Coordinates.x;
+            tb.localCoordy = Coordinates.y;
+        }
         TileState = NewState;
     }
 
-    public STATE GetTileState() {return TileState;}
+    public STATE GetTileState() { return TileState; }
 
-    public Vector2 GetCenterAnchoredPosition () {
-        
-        return (Vector2) GetComponent<RectTransform>().anchoredPosition + CenterOffset;
+    public Vector2 GetCenterAnchoredPosition()
+    {
+
+        return (Vector2)GetComponent<RectTransform>().anchoredPosition + CenterOffset;
     }
 
 
@@ -86,10 +118,10 @@ public class GridTile : MonoBehaviour
         PointerEnterEntry.callback.AddListener((data) => { MyOnPointerEnterDelegate((PointerEventData)data); });
         MyEventTrigger.triggers.Add(PointerEnterEntry);
 
-        if(gridManager.ArrowEndPointSprite != null)
+        if (gridManager.ArrowEndPointSprite != null)
         {
             ArrowEndPoint = new GameObject(name + " ArrowEndPoint");
-            ArrowEndPoint.transform.SetParent(transform,false);
+            ArrowEndPoint.transform.SetParent(transform, false);
             Image im = ArrowEndPoint.AddComponent<Image>();
             RectTransform rt = ArrowEndPoint.GetComponent<RectTransform>();
             im.sprite = gridManager.ArrowEndPointSprite;
@@ -104,12 +136,13 @@ public class GridTile : MonoBehaviour
         gridManager.StartDraw();
         gridManager.RegisterToDrawBuffer(this);
     }
-    
+
     public void MyOnPointerEnterDelegate(PointerEventData data)
     {
-        if(gridManager.isDrawing)
+        if (gridManager.isDrawing)
         {
-        gridManager.RegisterToDrawBuffer(this);}
+            gridManager.RegisterToDrawBuffer(this);
+        }
     }
 
 
