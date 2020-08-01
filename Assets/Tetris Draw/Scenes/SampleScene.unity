@@ -20,9 +20,9 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.83567226, g: 0.9339623, b: 0.47138664, a: 1}
-  m_AmbientEquatorColor: {r: 0.28555533, g: 0.6509434, b: 0.5358869, a: 1}
-  m_AmbientGroundColor: {r: 0.020425422, g: 0.062361427, b: 0.084905684, a: 1}
+  m_AmbientSkyColor: {r: 0.93112636, g: 0.9811321, b: 0.745105, a: 1}
+  m_AmbientEquatorColor: {r: 0.48940903, g: 0.735849, b: 0.6590022, a: 1}
+  m_AmbientGroundColor: {r: 0.11227306, g: 0.21665134, b: 0.2735849, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
@@ -626,8 +626,8 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 4.5
+  m_Color: {r: 0.948777, g: 0.9622642, b: 0.86694556, a: 1}
+  m_Intensity: 2.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -636,7 +636,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 0.75
+    m_Strength: 0.2
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -683,13 +683,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.30979812, y: 0.41440448, z: -0.82579356, w: 0.22440805}
+  m_LocalRotation: {x: -0.04772573, y: 0.5515965, z: -0.81385684, w: 0.17635362}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 55.433002, y: -395.03, z: 191.57799}
+  m_LocalEulerAnglesHint: {x: 61.764004, y: -324.87, z: 225.89299}
 --- !u!1 &770869367
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,7 +761,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 90717367a5812244c8df4b426720c7a2, type: 3}
-  m_Color: {r: 0.3537736, g: 0.36815462, b: 0.4716981, a: 1}
+  m_Color: {r: 0.18939124, g: 0.20439069, b: 0.3018868, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1690,7 +1690,7 @@ MonoBehaviour:
   Seed: 1
   BlockPrefab: {fileID: 8264885288086567769, guid: 611d981474213dd7fadb4bfb12417f58,
     type: 3}
-  newLevelTimeInSeconds: 1.2
+  newLevelTimeInSeconds: 5
   StartingLevelsCount: 3
   LevelHolder: {fileID: 0}
   TopPositionPerColumn: []
@@ -1913,16 +1913,16 @@ MonoBehaviour:
   DisabledTileCount: 0
   DrawPanel: {fileID: 1349349992}
   GridTileSprite: {fileID: 21300000, guid: 2d3a24415c1683842b5a3cc961a8d39d, type: 3}
-  TileSpriteMultiplier: 0.85
+  TileSpriteMultiplier: 0.9
   DefaultColor: {r: 1, g: 1, b: 1, a: 1}
   SelectedColor: {r: 0.5943396, g: 0.5943396, b: 0.5943396, a: 1}
   DisabledColor: {r: 1, g: 1, b: 1, a: 0.44705883}
   ArrowEndPointSprite: {fileID: 21300000, guid: 25bd10097134b3db0b9469809dc743e2,
     type: 3}
-  ArrowBaseWidth: 5
-  ArrowEndPointColor: {r: 1, g: 0, b: 0, a: 1}
-  ArrowBaseColor: {r: 1, g: 0, b: 0, a: 1}
-  BlockPrefab: {fileID: 8264885288086567769, guid: 969b3cc5780c4cd6fa5cb1ec632c5afe,
+  ArrowBaseWidth: 10
+  ArrowEndPointColor: {r: 0.9150943, g: 0.881102, b: 0.64315593, a: 1}
+  ArrowBaseColor: {r: 0.9716981, g: 0.8998315, b: 0.48126557, a: 1}
+  BlockPrefab: {fileID: 8264885288086567769, guid: 611d981474213dd7fadb4bfb12417f58,
     type: 3}
   BlockHolder: {fileID: 0}
   UpperBlockHolder: {fileID: 0}
