@@ -12,6 +12,7 @@ public class GridManager : MonoBehaviour
     public RectTransform DrawPanel;
     [Header("Tile Settings")]
     public Sprite GridTileSprite;
+    public float TileSpriteMultiplier;
     public Color DefaultColor, SelectedColor, DisabledColor;
 
     [Header("Arrow Settings")]
@@ -107,14 +108,24 @@ public class GridManager : MonoBehaviour
         rt.localScale = Vector3.one;
         rt.sizeDelta = TileDimension;
         rt.anchoredPosition = new Vector2(x * TileDimension.x, -y * TileDimension.y);
-        Image im = TileObject.AddComponent<Image>();
+        TileObject.AddComponent<Text>();
+        GameObject TileImageChild = new GameObject("Tile Image Child", typeof(RectTransform));
+        TileImageChild.transform.SetParent(TileObject.transform);
+        RectTransform rt2 = TileImageChild.GetComponent<RectTransform>();
+        rt2.anchoredPosition = Vector2.zero;
+        rt2.sizeDelta = TileDimension * TileSpriteMultiplier;
+        TileImageChild.transform.localScale = Vector3.one;
+        Image im = TileImageChild.AddComponent<Image>();
         im.sprite = GridTileSprite;
         im.color = DefaultColor;
+        im.raycastTarget = false;
+        
         GridTile gt = TileObject.AddComponent<GridTile>();
         gt.Coordinates = new Vector2Int(x, y);
         gt.ArrowColor = color;
         gt.gridManager = this;
         gt.CenterOffset = new Vector2(TileDimension.x / 2f, -TileDimension.y / 2f);
+        gt.ImageObjectImage = im;
         gt.Init();
         return gt;
     }
@@ -146,6 +157,7 @@ public class GridManager : MonoBehaviour
 
     public void StartDraw()
     {
+        if(!gameManager.isPlaying) return;
         isDrawing = true;
         if (BlockHolder == null)
         {
@@ -191,14 +203,14 @@ public class GridManager : MonoBehaviour
     void Update()
     {
         //SPAWN
-        if (Input.GetMouseButtonUp(0) && isDrawing)
+        if (Input.GetMouseButtonUp(0) && isDrawing && gameManager.isPlaying)
         {
             SpawnBlock();
             EndDraw();
         }
 
         //CANCEL
-        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() || !gameManager.isPlaying)
         {
             EndDraw();
         }
@@ -209,7 +221,7 @@ public class GridManager : MonoBehaviour
             Vector3 sizeDelta = new Vector3(rt2.sizeDelta.x / 2, -rt2.sizeDelta.y, 0);
             Vector2 pt;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(DrawPanel, Input.mousePosition, null, out pt);
-            Debug.Log((Vector3)pt);
+//          Debug.Log((Vector3)pt);
             CurrentArrow.SetEnd((Vector3)pt + (sizeDelta));
             CurrentArrow.Draw();
         }

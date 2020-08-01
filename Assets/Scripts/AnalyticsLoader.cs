@@ -18,7 +18,6 @@ public class AnalyticsLoader : MonoBehaviour
             // Already initialized, signal an app activation App Event
             FB.ActivateApp();
         }
-        GameAnalytics.Initialize();
     }
 
 

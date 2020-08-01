@@ -25,13 +25,16 @@ public class GridTile : MonoBehaviour
     public GameObject UpperBlock;
 
     public Color ArrowColor;
+
+    GameManager gameManager;
+    public Image ImageObjectImage;
     public void ChangeDraw(STATE NewState)
     {
         ArrowEndPoint.SetActive(NewState == STATE.SELECTED);
         switch (NewState)
         {
             case STATE.SELECTED:
-                GetComponent<Image>().color = gridManager.SelectedColor;
+                ImageObjectImage.color = gridManager.SelectedColor;
                 if (Block == null)
                 {
                     Block = Instantiate(gridManager.SilhuettePrefab, Vector3.zero, Quaternion.identity);
@@ -64,7 +67,7 @@ public class GridTile : MonoBehaviour
                     Destroy(UpperBlock.gameObject);
                     UpperBlock = null;
                 }
-                GetComponent<Image>().color = gridManager.DefaultColor;
+                ImageObjectImage.color = gridManager.DefaultColor;
                 break;
             case STATE.DISABLED:
                 if (Block != null)
@@ -77,7 +80,7 @@ public class GridTile : MonoBehaviour
                     Destroy(UpperBlock.gameObject);
                     UpperBlock = null;
                 }
-                GetComponent<Image>().color = gridManager.DisabledColor;
+                ImageObjectImage.color = gridManager.DisabledColor;
                 break;
         }
         if (Block != null)
@@ -107,6 +110,7 @@ public class GridTile : MonoBehaviour
 
     public void Init()
     {
+        gameManager = FindObjectOfType<GameManager>();
         EventTrigger MyEventTrigger = gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry PointerDownEntry = new EventTrigger.Entry();
         PointerDownEntry.eventID = EventTriggerType.PointerDown;
@@ -133,12 +137,14 @@ public class GridTile : MonoBehaviour
 
     public void MyOnPointerDownDelegate(PointerEventData data)
     {
+        if(!gameManager.isPlaying) return;
         gridManager.StartDraw();
         gridManager.RegisterToDrawBuffer(this);
     }
 
     public void MyOnPointerEnterDelegate(PointerEventData data)
     {
+        if(!gameManager.isPlaying) return;
         if (gridManager.isDrawing)
         {
             gridManager.RegisterToDrawBuffer(this);

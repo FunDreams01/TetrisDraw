@@ -5,7 +5,9 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    public int level = 0;
+    public int Stage = 0;
+    public float Seed;
+    int level = 0;
     public GameObject BlockPrefab;
     public float newLevelTimeInSeconds;
     public int StartingLevelsCount;
@@ -23,6 +25,7 @@ public class LevelManager : MonoBehaviour
     int created = 0;
     GameManager gameManager;
 
+
     [Header("Probabilities")]
     public float HoleProbability;
     public float IncreaseInVerticalProbability;
@@ -32,9 +35,25 @@ public class LevelManager : MonoBehaviour
         uIManager = FindObjectOfType<UIManager>();
         GameObject LevelHolderGO = new GameObject("LevelHolder");
         LevelHolder = LevelHolderGO.transform;
-        prev = new List<int>(0);
-        Levels = new List<List<LevelBlock>>(SpaceConversionUtility.ScreenHeightInBlocks);
         gameManager = FindObjectOfType<GameManager>();
+    }
+
+    public void Initialize()
+    {
+        Random.InitState((int)(Stage*Seed + Mathf.Pow(Stage,2f) + Seed));
+        prev = new List<int>(0);
+        for(int i = LevelHolder.childCount -1; i >= 0; i--)
+        {
+            Destroy(LevelHolder.GetChild(i).gameObject);
+        }
+        Levels = new List<List<LevelBlock>>(SpaceConversionUtility.ScreenHeightInBlocks);
+        created = 0;
+        for (int i = 0; i < StartingLevelsCount; i++) 
+        {AddLevel();
+         lastTime = Time.time; 
+        } 
+        Analytics.LogLevelStarted(Stage);
+        gameManager.isPlaying = true;
     }
 
     LevelBlock GenerateBlock(Vector2Int Coords)
@@ -83,12 +102,16 @@ public class LevelManager : MonoBehaviour
         }
         if (Levels.Count == 0 || LevelHolder.childCount == 0)
         {
+            gameManager.isPlaying = false;
+            Analytics.LogLevelSucceeded();
             uIManager.Win();
         }
         ReCalcTopPos();
 
         if (Levels.Count > LoseLevels)
         {
+            gameManager.isPlaying = false;
+            Analytics.LogLevelFailed();
             uIManager.Lose();
         }
 
@@ -204,12 +227,15 @@ public class LevelManager : MonoBehaviour
 
     public void Restart()
     {
-
+    uIManager.GameScreen();
+    Initialize();
     }
 
     public void Next()
     {
-
+    Stage++;
+    uIManager.GameScreen();
+    Initialize();
     }
 
     private void Update()
@@ -220,6 +246,6 @@ public class LevelManager : MonoBehaviour
                 lastTime = Time.time;
                 AddLevel();
             }
-//        Debug.Log(Levels.Count);
+        //        Debug.Log(Levels.Count);
     }
 }

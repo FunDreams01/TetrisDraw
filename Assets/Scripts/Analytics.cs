@@ -10,6 +10,7 @@ public class Analytics
     static int last_level = -1;
     public static void LogLevelStarted(int level)
     {
+        if(last_level == -1) GameAnalytics.Initialize();
         last_level = level;
         Debug.Log("Logging Level Start: " + level);
         if(Application.isEditor) {Debug.LogWarning("Analytics will not log in Editor"); return;}

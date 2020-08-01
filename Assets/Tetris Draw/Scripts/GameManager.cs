@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
    public float BlockDisappearDelay;
    public float BlockDropSpeedInitialAcceleration;
    public float BlockDropSpeedJerkMultiplier;
+   public bool isPlaying = false;
    private void Awake() {
        GameObject go = new GameObject("SpawnLocation");
        go.transform.position = Vector3.zero;

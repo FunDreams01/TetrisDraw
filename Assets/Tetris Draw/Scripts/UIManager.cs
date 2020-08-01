@@ -60,6 +60,12 @@ public class UIManager : MonoBehaviour
     {
         LoseScreen.SetActive(true);
     }
+    
+    public void GameScreen()
+    {
+        WinScreen.SetActive(false);
+        LoseScreen.SetActive(false);
+    }
 
 
     void Update()
@@ -71,8 +77,8 @@ public class UIManager : MonoBehaviour
             GenerateHaloImage();
             MoveHaloAndSpawner(Halo.anchoredPosition);
             FindObjectOfType<GridManager>().InitializeBlock();
-            for (int i = 0; i < levelManager.StartingLevelsCount; i++)
-                levelManager.AddLevel();
+           
+             levelManager.Initialize();
         }
         else if (Time.frameCount > 1)
         {

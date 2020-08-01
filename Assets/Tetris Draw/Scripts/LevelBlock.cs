@@ -5,7 +5,4 @@ using UnityEngine;
 public class LevelBlock : MonoBehaviour
 {
     public int Coordx;
-    private void Awake() {
-     
-    }
 }
