@@ -119,13 +119,18 @@ public class GridManager : MonoBehaviour
         im.sprite = GridTileSprite;
         im.color = DefaultColor;
         im.raycastTarget = false;
-        
+
+
+        GameObject BlockPreviewGO = Instantiate(TileImageChild);
+        BlockPreviewGO.transform.SetParent(TileObject.transform,false);
         GridTile gt = TileObject.AddComponent<GridTile>();
         gt.Coordinates = new Vector2Int(x, y);
         gt.ArrowColor = color;
         gt.gridManager = this;
         gt.CenterOffset = new Vector2(TileDimension.x / 2f, -TileDimension.y / 2f);
         gt.ImageObjectImage = im;
+        gt.BlockPreview = BlockPreviewGO.GetComponent<Image>();
+        gt.BlockPreview.enabled = false;
         gt.Init();
         return gt;
     }

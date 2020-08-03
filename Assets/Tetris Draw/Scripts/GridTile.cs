@@ -28,6 +28,7 @@ public class GridTile : MonoBehaviour
 
     GameManager gameManager;
     public Image ImageObjectImage;
+    public Image BlockPreview;
     public void ChangeDraw(STATE NewState)
     {
         ArrowEndPoint.SetActive(NewState == STATE.SELECTED);
@@ -35,6 +36,7 @@ public class GridTile : MonoBehaviour
         {
             case STATE.SELECTED:
                 ImageObjectImage.color = gridManager.SelectedColor;
+                BlockPreview.enabled = true;
                 if (Block == null)
                 {
                     Block = Instantiate(gridManager.SilhuettePrefab, Vector3.zero, Quaternion.identity);
@@ -57,12 +59,13 @@ public class GridTile : MonoBehaviour
                 }
                 break;
             case STATE.AVAILABLE:
+                BlockPreview.enabled = false;
                 if (Block != null)
                 {
                     Destroy(Block.gameObject);
                     Block = null;
                 }
-                if(UpperBlock!=null)
+                if (UpperBlock != null)
                 {
                     Destroy(UpperBlock.gameObject);
                     UpperBlock = null;
@@ -70,12 +73,13 @@ public class GridTile : MonoBehaviour
                 ImageObjectImage.color = gridManager.DefaultColor;
                 break;
             case STATE.DISABLED:
+                BlockPreview.enabled = false;
                 if (Block != null)
                 {
                     Destroy(Block.gameObject);
                     Block = null;
                 }
-                if(UpperBlock!=null)
+                if (UpperBlock != null)
                 {
                     Destroy(UpperBlock.gameObject);
                     UpperBlock = null;
@@ -108,6 +112,8 @@ public class GridTile : MonoBehaviour
     }
 
 
+
+
     public void Init()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -137,14 +143,14 @@ public class GridTile : MonoBehaviour
 
     public void MyOnPointerDownDelegate(PointerEventData data)
     {
-        if(!gameManager.isPlaying) return;
+        if (!gameManager.isPlaying) return;
         gridManager.StartDraw();
         gridManager.RegisterToDrawBuffer(this);
     }
 
     public void MyOnPointerEnterDelegate(PointerEventData data)
     {
-        if(!gameManager.isPlaying) return;
+        if (!gameManager.isPlaying) return;
         if (gridManager.isDrawing)
         {
             gridManager.RegisterToDrawBuffer(this);

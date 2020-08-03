@@ -68,15 +68,19 @@ public class LevelManager : MonoBehaviour
         return lb;
     }
 
-
-    public void CheckLevelCompletionDelayed()
+    bool WillCheckForCompletion = false;
+    public void CheckLevelCompletionDelayed(float delay)
     {
-        Invoke("CheckLevelCompletion", gameManager.BlockDisappearDelay);
+        if(WillCheckForCompletion) return;
+        WillCheckForCompletion = true;
+        Invoke("CheckLevelCompletion", delay);
     }
 
     //REMEMBER TO OPTIMIZE?
     public void CheckLevelCompletion()
     {
+        WillCheckForCompletion = false;
+        if(!gameManager.isPlaying) return;
         int destroyed = 0;
         for (int i = Levels.Count - 1; i >= 0; i--)
         {
@@ -223,6 +227,7 @@ public class LevelManager : MonoBehaviour
         Levels.Add(CreateNewLevel());
         ReCalcTopPos();
         uIManager.MoveSpawnerOnly();
+        CheckLevelCompletionDelayed(gameManager.LoseCheckDelayAfterLevelAddition);
     }
 
     public void Restart()
@@ -240,7 +245,7 @@ public class LevelManager : MonoBehaviour
 
     private void Update()
     {
-        if (created < MaxLevelsToGenerateInTotal)
+        if (created < MaxLevelsToGenerateInTotal && gameManager.isPlaying)
             if (Time.time - lastTime >= newLevelTimeInSeconds)
             {
                 lastTime = Time.time;

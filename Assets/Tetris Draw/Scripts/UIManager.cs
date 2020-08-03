@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
     public Camera TetrisCamera;
     public RectTransform HaloParent;
     public GameObject WinScreen, LoseScreen;
+    public GameObject LoseBar;
 
     //PRIVATE VARS
     GameManager gameManager;
@@ -67,7 +68,6 @@ public class UIManager : MonoBehaviour
         LoseScreen.SetActive(false);
     }
 
-
     void Update()
     {
         if (Time.frameCount == 1)
@@ -76,13 +76,14 @@ public class UIManager : MonoBehaviour
             GenerateGrid();
             GenerateHaloImage();
             MoveHaloAndSpawner(Halo.anchoredPosition);
+            PositionLoseBar();
             FindObjectOfType<GridManager>().InitializeBlock();
            
              levelManager.Initialize();
         }
         else if (Time.frameCount > 1)
         {
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButton(0) && gameManager.isPlaying)
             {
                 Vector2 outpos;
                 if (SpaceConversionUtility.ScreenSpaceToRectSpace(Input.mousePosition, out outpos))
@@ -204,7 +205,12 @@ public class UIManager : MonoBehaviour
         Halo.localScale = Vector3.one;
         Halo.anchoredPosition = new Vector2(0, 0);
         Halo.sizeDelta = new Vector2(HaloWidthInBlocks * (SpaceConversionUtility.TetrisScreenBounds.width / (SpaceConversionUtility.CanvasScale.x * ScreenWidthInBlocks)), tex.height / (SpaceConversionUtility.CanvasScale.y));
+        Halo.SetSiblingIndex(1);
+    }
 
+    void PositionLoseBar()
+    {
+        LoseBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, ((SpaceConversionUtility.TetrisScreenBounds.width / ScreenWidthInBlocks)/SpaceConversionUtility.CanvasScale.y)*levelManager.LoseLevels);
     }
 
 }

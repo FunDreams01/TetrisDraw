@@ -13,6 +13,8 @@ public class TetrisBlockHolder : MonoBehaviour
 
     public GridTile CollidingTile;
 
+    public GameManager gameManager;
+
     public bool isFree;
 
     int[] min_y;
@@ -21,6 +23,7 @@ public class TetrisBlockHolder : MonoBehaviour
 
     void Awake()
     {
+        gameManager = FindObjectOfType<GameManager>();
         min_y = new int[SpaceConversionUtility.ScreenWidthInBlocks];
         for (int i = 0; i < min_y[i]; i++) min_y[i] = int.MaxValue;
         for (int i = 0; i < transform.childCount; i++)
@@ -77,6 +80,7 @@ public class TetrisBlockHolder : MonoBehaviour
 
     void SnapAndJoin(TetrisBlock tetrisBlock)
     {
+        
         //SNAP
         isFree = false;
         int yForTB = levelManager.TopGridIndexPerColumn[tetrisBlock.Coordx] + 1;
@@ -133,7 +137,7 @@ public class TetrisBlockHolder : MonoBehaviour
         Destroy(gameObject);
 
         levelManager.ReCalcTopPos();
-        levelManager.CheckLevelCompletionDelayed();
+        levelManager.CheckLevelCompletionDelayed(gameManager.BlockDisappearDelay);
     }
 
 }

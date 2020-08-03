@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
    [HideInInspector] public Transform SpawnLocation;
    public float BlockDisappearDelay;
+   public float LoseCheckDelayAfterLevelAddition;
    public float BlockDropSpeedInitialAcceleration;
    public float BlockDropSpeedJerkMultiplier;
    public bool isPlaying = false;
