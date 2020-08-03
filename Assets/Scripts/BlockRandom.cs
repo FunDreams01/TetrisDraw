@@ -5,10 +5,11 @@ using UnityEngine;
 public class BlockRandom : MonoBehaviour
 {
     public Texture[] BlockTextures;
-    void Start()
+    public int Index;
+    public void Init(int Index = -1) // I call init myself when needed. It is useful for starting functions that require additional input data from other scripts.
     {
-        this.gameObject.GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", BlockTextures[Random.Range(0, BlockTextures.Length)]);
+        if(Index == -1) Index = Random.Range(0,BlockTextures.Length);
+        Texture tex = BlockTextures[Index];
+        GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", tex);
     }
-
-
 }

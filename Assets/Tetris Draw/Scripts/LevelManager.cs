@@ -24,6 +24,7 @@ public class LevelManager : MonoBehaviour
 
     int created = 0;
     GameManager gameManager;
+    GridManager gridManager;
 
 
     [Header("Probabilities")]
@@ -32,6 +33,7 @@ public class LevelManager : MonoBehaviour
     public float IncreaseInHorizontalProbability;
     private void Awake()
     {
+        gridManager = FindObjectOfType<GridManager>();
         uIManager = FindObjectOfType<UIManager>();
         GameObject LevelHolderGO = new GameObject("LevelHolder");
         LevelHolder = LevelHolderGO.transform;
@@ -60,6 +62,7 @@ public class LevelManager : MonoBehaviour
     {
         GameObject newBlock = (Instantiate(BlockPrefab, SpaceConversionUtility.GridSpaceToWorldSpace(Coords), Quaternion.identity));
         newBlock.transform.SetParent(LevelHolder, true);
+        newBlock.GetComponentInChildren<BlockRandom>().Init();
 
         LevelBlock lb = newBlock.AddComponent<LevelBlock>();
         lb.Coordx = Coords.x;
@@ -240,6 +243,7 @@ public class LevelManager : MonoBehaviour
     {
     Stage++;
     uIManager.GameScreen();
+    gridManager.ShuffleTileTextures();
     Initialize();
     }
 

@@ -14,6 +14,7 @@ public class GridManager : MonoBehaviour
     public Sprite GridTileSprite;
     public float TileSpriteMultiplier;
     public Color DefaultColor, SelectedColor, DisabledColor;
+    public Texture2D[] CorrespondingImages;
 
     [Header("Arrow Settings")]
     public Sprite ArrowEndPointSprite;
@@ -96,6 +97,11 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void ShuffleTileTextures()
+    {
+    foreach(GridTile gt in AllTiles) gt.SetBlockPreviewIndex(Random.Range(0,CorrespondingImages.Length));
+    }
+
     GridTile CreateTile(int x, int y, Vector2 TileDimension, Color color)
     {
         GameObject TileObject = new GameObject("Grid (" + x + " , " + y + ")", typeof(RectTransform));
@@ -119,19 +125,28 @@ public class GridManager : MonoBehaviour
         im.sprite = GridTileSprite;
         im.color = DefaultColor;
         im.raycastTarget = false;
+        TileImageChild.AddComponent<Mask>().showMaskGraphic = true;
 
 
-        GameObject BlockPreviewGO = Instantiate(TileImageChild);
-        BlockPreviewGO.transform.SetParent(TileObject.transform,false);
+        GameObject BlockPreviewGO = new GameObject("Block Preview Texture", typeof(RectTransform), typeof(RawImage));
+        BlockPreviewGO.transform.SetParent(TileImageChild.transform,false);
+        RectTransform rt3 = BlockPreviewGO.GetComponent<RectTransform>();
+        rt3.anchorMin = Vector2.zero;
+        rt3.anchorMax = Vector2.one;
+        rt3.pivot = new Vector2(0.5f,0.5f);
+        rt3.offsetMin = Vector2.zero;
+        rt3.offsetMax = Vector2.zero;
+
         GridTile gt = TileObject.AddComponent<GridTile>();
         gt.Coordinates = new Vector2Int(x, y);
         gt.ArrowColor = color;
         gt.gridManager = this;
         gt.CenterOffset = new Vector2(TileDimension.x / 2f, -TileDimension.y / 2f);
         gt.ImageObjectImage = im;
-        gt.BlockPreview = BlockPreviewGO.GetComponent<Image>();
+        gt.BlockPreview = BlockPreviewGO.GetComponent<RawImage>();
         gt.BlockPreview.enabled = false;
         gt.Init();
+        gt.SetBlockPreviewIndex(Random.Range(0,CorrespondingImages.Length));
         return gt;
     }
 
@@ -310,7 +325,10 @@ public class GridManager : MonoBehaviour
             gt.Block = null;
             if (gt.UpperBlock != null)
             {
-                gt.UpperBlock.GetComponentInChildren<MeshRenderer>().material = og_BlockMaterial;
+                MeshRenderer mr = gt.UpperBlock.GetComponentInChildren<MeshRenderer>();
+                Texture thisTex = mr.material.mainTexture; 
+                mr.material = og_BlockMaterial;
+                mr.material.mainTexture = thisTex;
                 gt.UpperBlock = null;
             }
             else

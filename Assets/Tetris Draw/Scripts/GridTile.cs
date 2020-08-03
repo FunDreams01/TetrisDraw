@@ -28,7 +28,19 @@ public class GridTile : MonoBehaviour
 
     GameManager gameManager;
     public Image ImageObjectImage;
-    public Image BlockPreview;
+    public RawImage BlockPreview;
+    int BlockPreviewIndex;
+
+    public void SetBlockPreviewIndex(int Index)
+    {
+        BlockPreviewIndex = Index;
+        BlockPreview.texture = gridManager.CorrespondingImages[Index];
+        if(UpperBlock!=null)
+        {
+        UpperBlock.GetComponentInChildren<BlockRandom>().Init(BlockPreviewIndex);
+        }
+    }
+
     public void ChangeDraw(STATE NewState)
     {
         ArrowEndPoint.SetActive(NewState == STATE.SELECTED);
@@ -56,6 +68,7 @@ public class GridTile : MonoBehaviour
                     UpperBlock.transform.position = pos;
                     UpperBlock.transform.SetParent(gridManager.UpperBlockHolder.transform, false);
                     TetrisBlock tb = UpperBlock.gameObject.AddComponent<TetrisBlock>();
+                    UpperBlock.GetComponentInChildren<BlockRandom>().Init(BlockPreviewIndex);
                 }
                 break;
             case STATE.AVAILABLE:
