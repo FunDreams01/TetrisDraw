@@ -99,9 +99,11 @@ public class LevelManager : MonoBehaviour
                 destroyed++;
                 for (int j = 0; j < Levels[i].Count; j++)
                 {
-                    GameObject go = Levels[i][j].gameObject;
-                    go.transform.SetParent(null);
-                    Destroy(go);
+                    LevelBlock tb = Levels[i][j];
+                    tb.SetForDestructionDelayed(2f);
+                    tb.transform.SetParent(null);
+                    tb.PlayParticles();
+                    //Destroy(tb.gameObject);
                 }
                 Levels.RemoveAt(i);
                 level--;

@@ -125,7 +125,13 @@ public class GridManager : MonoBehaviour
         im.sprite = GridTileSprite;
         im.color = DefaultColor;
         im.raycastTarget = false;
-        TileImageChild.AddComponent<Mask>().showMaskGraphic = true;
+        TileImageChild.AddComponent<Mask>().showMaskGraphic = false;
+
+
+
+        GameObject GeneralImage = Instantiate(TileImageChild);
+        GeneralImage.transform.SetParent(TileImageChild.transform,false);
+        Destroy(GeneralImage.GetComponent<Mask>());
 
 
         GameObject BlockPreviewGO = new GameObject("Block Preview Texture", typeof(RectTransform), typeof(RawImage));
@@ -137,12 +143,15 @@ public class GridManager : MonoBehaviour
         rt3.offsetMin = Vector2.zero;
         rt3.offsetMax = Vector2.zero;
 
+        rt3.SetAsFirstSibling();
+
+
         GridTile gt = TileObject.AddComponent<GridTile>();
         gt.Coordinates = new Vector2Int(x, y);
         gt.ArrowColor = color;
         gt.gridManager = this;
         gt.CenterOffset = new Vector2(TileDimension.x / 2f, -TileDimension.y / 2f);
-        gt.ImageObjectImage = im;
+        gt.ImageObjectImage = GeneralImage.GetComponent<Image>();
         gt.BlockPreview = BlockPreviewGO.GetComponent<RawImage>();
         gt.BlockPreview.enabled = false;
         gt.Init();
