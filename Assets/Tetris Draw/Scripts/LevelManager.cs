@@ -37,8 +37,8 @@ public class LevelManager : MonoBehaviour
     public float IncreaseInHorizontalProbability;
     private void Awake()
     {
-        Stage = PlayerPrefs.GetInt("Stage",Stage);
-        if(Stage < 5 && SceneManager.GetActiveScene().buildIndex != 1) SceneManager.LoadScene(1);
+        Stage = PlayerPrefs.GetInt("Stage", Stage);
+        if (Stage < 5 && SceneManager.GetActiveScene().buildIndex != 1) SceneManager.LoadScene(1);
         gridManager = FindObjectOfType<GridManager>();
         uIManager = FindObjectOfType<UIManager>();
         GameObject LevelHolderGO = new GameObject("LevelHolder");
@@ -51,7 +51,14 @@ public class LevelManager : MonoBehaviour
     {
         if (Tutorial)
         {
-            if(TutorialObjectsEnabledPerLevel!=null && Stage < TutorialObjectsEnabledPerLevel.Length) TutorialObjectsEnabledPerLevel[Stage].SetActive(true);
+            if (TutorialObjectsEnabledPerLevel != null && Stage < TutorialObjectsEnabledPerLevel.Length) TutorialObjectsEnabledPerLevel[Stage].SetActive(true);
+           /* else
+            {
+                for (int T = 0; T <= 3; T++)
+                {
+                    TutorialObjectsEnabledPerLevel[T].SetActive(false);
+                }
+            }*/
             if (Stage >= 5) { SceneManager.LoadScene(2); }
             created = 0;
             level = 0;
@@ -63,7 +70,7 @@ public class LevelManager : MonoBehaviour
             MakeTutorial();
             MakeTutorial();
             if (Stage == 2) { MakeTutorial(); MakeTutorial(); }
-            if (Stage == 4) { MakeTutorial(); MaxLevelsToGenerateInTotal = 8; LoseLevels = 6; uIManager.PositionLoseBar();}
+            if (Stage == 4) { MakeTutorial(); MaxLevelsToGenerateInTotal = 8; LoseLevels = 6; uIManager.PositionLoseBar(); }
             Analytics.LogLevelStarted(Stage);
             gameManager.isPlaying = true;
             lastTime = Time.time;
@@ -74,7 +81,7 @@ public class LevelManager : MonoBehaviour
 
         if (Stage > 7)
         {
-            MaxLevelsToGenerateInTotal = Mathf.Min(6 + Stage,35);
+            MaxLevelsToGenerateInTotal = Mathf.Min(6 + Stage, 35);
             StartingLevelsCount = 5;
         }
 
@@ -194,7 +201,7 @@ public class LevelManager : MonoBehaviour
         {
             gameManager.isPlaying = false;
             Analytics.LogLevelSucceeded();
-            PlayerPrefs.SetInt("Stage",Stage+1);
+            PlayerPrefs.SetInt("Stage", Stage + 1);
             uIManager.Win();
         }
         ReCalcTopPos();

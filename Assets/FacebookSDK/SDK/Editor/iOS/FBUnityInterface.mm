@@ -505,6 +505,21 @@ extern "C" {
       }];
   }
 
+  void IOSFBSetDataProcessingOptions(
+    const char** options,
+    int numOptions,
+    int country,
+    int state) {
+    NSMutableArray<NSString*>* array = [[NSMutableArray alloc] init];
+    for (int i = 0; i < numOptions; i++) {
+      NSString* option = [FBUnityUtility stringFromCString:options[i]];
+      if (option) {
+        [array addObject:option];
+      }
+    }
+    [FBSDKSettings setDataProcessingOptions:array country:country state:state];
+  }
+
   void IOSFBUploadImageToMediaLibrary(int requestId,
                                       const char *caption,
                                       const char *imageUri,
@@ -522,14 +537,14 @@ extern "C" {
 
     [FBSDKGamingImageUploader
       uploadImageWithConfiguration:config
-      andCompletionHandler:^(BOOL success, NSError * _Nullable error) {
+      andResultCompletionHandler:^(BOOL success, id result, NSError * _Nullable error) {
         if (!success || error) {
           [FBUnityUtility sendErrorToUnity:FBUnityMessageName_OnUploadImageToMediaLibraryComplete
             error:error
             requestId:requestId];
         } else {
           [FBUnityUtility sendMessageToUnity:FBUnityMessageName_OnUploadImageToMediaLibraryComplete
-            userData:NULL
+            userData:@{@"id":result[@"id"]}
             requestId:requestId];
         }
     }];
@@ -551,14 +566,14 @@ extern "C" {
 
     [FBSDKGamingVideoUploader
       uploadVideoWithConfiguration:config
-      andCompletionHandler:^(BOOL success, NSError * _Nullable error) {
+      andResultCompletionHandler:^(BOOL success, id result, NSError * _Nullable error) {
         if (!success || error) {
           [FBUnityUtility sendErrorToUnity:FBUnityMessageName_OnUploadVideoToMediaLibraryComplete
             error:error
             requestId:requestId];
         } else {
           [FBUnityUtility sendMessageToUnity:FBUnityMessageName_OnUploadVideoToMediaLibraryComplete
-            userData:NULL
+            userData:@{@"id":result[@"id"]}
             requestId:requestId];
         }
     }];

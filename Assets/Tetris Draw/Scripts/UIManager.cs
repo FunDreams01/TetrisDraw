@@ -37,7 +37,7 @@ public class UIManager : MonoBehaviour
     GridManager gridManager;
     Vector2 ScreenStartPos;
 
-    TextMeshProUGUI StageIndicator;
+    public TextMeshProUGUI StageIndicator;
 
     
 
@@ -287,7 +287,7 @@ public class UIManager : MonoBehaviour
     public void SetStage(string Stage)
     {
         if(StageIndicator!=null)
-        StageIndicator.text = Stage;
+        StageIndicator.text = "Level " + (( int.Parse(Stage) + 1f));
         else Debug.LogError("StageIndicator is Null on UIManager. Stage: " + Stage);
     }
 
