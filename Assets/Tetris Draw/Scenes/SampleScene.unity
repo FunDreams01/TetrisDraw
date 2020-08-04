@@ -2282,7 +2282,12 @@ MonoBehaviour:
   HaloColor: {r: 1, g: 0.9604804, b: 0.7783019, a: 1}
   HaloWidthInBlocks: 0
   SpawnerOffsetFromTop: 3
+  ShakeSpeed: 20
+  ShakeAmount: 1.5
+  ShakeDuration: 0.6
+  ShakeDecayInverseSmoothness: 0.7
   TetrisImage: {fileID: 341752608}
+  PlayArea: {fileID: 1988277707}
   TetrisCamera: {fileID: 963194227}
   HaloParent: {fileID: 241542387}
   WinScreen: {fileID: 1356884403}

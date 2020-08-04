@@ -14,9 +14,13 @@ public class UIManager : MonoBehaviour
     public Color HaloColor;
     [HideInInspector] public int HaloWidthInBlocks;
     public float SpawnerOffsetFromTop;
+    [Header ("Screen Shake")]
+    public float ShakeSpeed;
+    public float ShakeAmount, ShakeDuration, ShakeDecayInverseSmoothness;
 
     [Header("Configuration, Be Careful")]
     public RawImage TetrisImage;
+    public Transform PlayArea;
     public Camera TetrisCamera;
     public RectTransform HaloParent;
     public GameObject WinScreen, LoseScreen;
@@ -27,7 +31,9 @@ public class UIManager : MonoBehaviour
     LevelManager levelManager;
     RectTransform Halo;
     GridManager gridManager;
+    Vector2 ScreenStartPos;
 
+    bool ShakeIt;
     //UNITY FUNCTIONS
 
     private void Awake()
@@ -36,6 +42,25 @@ public class UIManager : MonoBehaviour
         SpaceConversionUtility.ScreenWidthInBlocks = ScreenWidthInBlocks;
         levelManager = FindObjectOfType<LevelManager>();
         gridManager = FindObjectOfType<GridManager>();
+    }
+
+
+    int multiplier = 1;
+    float ShakeFinishTime;
+    public void ShakeItUp()
+    {
+        if (ShakeIt)
+        {
+            multiplier++;
+            ShakeFinishTime = Time.time + ShakeDuration * multiplier;
+
+        }
+        else
+        {
+            multiplier = 1;
+            ShakeFinishTime = Time.time + ShakeDuration;
+        }
+        ShakeIt = true;
     }
 
     private void OnDrawGizmos()
@@ -61,7 +86,7 @@ public class UIManager : MonoBehaviour
     {
         LoseScreen.SetActive(true);
     }
-    
+
     public void GameScreen()
     {
         WinScreen.SetActive(false);
@@ -78,8 +103,8 @@ public class UIManager : MonoBehaviour
             MoveHaloAndSpawner(Halo.anchoredPosition);
             PositionLoseBar();
             FindObjectOfType<GridManager>().InitializeBlock();
-           
-             levelManager.Initialize();
+
+            levelManager.Initialize();
         }
         else if (Time.frameCount > 1)
         {
@@ -90,6 +115,24 @@ public class UIManager : MonoBehaviour
                 {
                     outpos.x -= SpaceConversionUtility.CanvasScale.x * Halo.sizeDelta.x;
                     MoveHaloAndSpawner(outpos);
+                }
+            }
+
+            if (ShakeIt)
+            {
+                if (Time.time > ShakeFinishTime)
+                {
+                    ShakeIt = false;
+                    PlayArea.position = ScreenStartPos;
+                }
+                else
+                {
+                    float TimeLeft = ShakeFinishTime - Time.time;
+                    float decay = Mathf.Pow(TimeLeft, ShakeDecayInverseSmoothness);
+                    Vector3 ppos = PlayArea.position;
+                    ppos.x = ScreenStartPos.x + Mathf.Sin(Time.time * ShakeSpeed * multiplier) * ShakeAmount * multiplier * decay;
+                    ppos.y = ScreenStartPos.y + (Mathf.Sin(Time.time * ShakeSpeed * multiplier) * ShakeAmount * multiplier * decay);
+                    PlayArea.position = ppos;
                 }
             }
         }
@@ -104,17 +147,17 @@ public class UIManager : MonoBehaviour
         if (gridManager.isDrawing && gridManager.BlockHolder != null && gridManager.BlockHolder.CollidingTile != null && gridManager.BlockHolder.CollidingTile.Block != null)
         {
 
-            foreach(var t in FindObjectsOfType<TetrisBlockHolder>())
+            foreach (var t in FindObjectsOfType<TetrisBlockHolder>())
             {
-                if(t.isFree)
+                if (t.isFree)
                 {
                     Transform first = gridManager.BlockHolder.transform;
-                    for(int i = 0; i < first.childCount; i++)
+                    for (int i = 0; i < first.childCount; i++)
                     {
                         Transform second = t.transform;
-                        for(int j = 0; j < second.childCount; j++)
+                        for (int j = 0; j < second.childCount; j++)
                         {
-                            if(first.GetChild(i).GetComponent<TetrisBlock>().Coordx == second.GetChild(j).GetComponent<TetrisBlock>().Coordx)
+                            if (first.GetChild(i).GetComponent<TetrisBlock>().Coordx == second.GetChild(j).GetComponent<TetrisBlock>().Coordx)
                             {
                                 gridManager.BlockHolder.gameObject.SetActive(false);
                                 return;
@@ -124,9 +167,9 @@ public class UIManager : MonoBehaviour
                 }
             }
 
-            if(!gridManager.BlockHolder.gameObject.activeSelf) gridManager.BlockHolder.gameObject.SetActive(true);
+            if (!gridManager.BlockHolder.gameObject.activeSelf) gridManager.BlockHolder.gameObject.SetActive(true);
             TetrisBlock tetrisBlock = gridManager.BlockHolder.CollidingTile.Block.GetComponent<TetrisBlock>();
-        //    Debug.Log(tetrisBlock.Coordx + " " + tetrisBlock.localCoordy);
+            //    Debug.Log(tetrisBlock.Coordx + " " + tetrisBlock.localCoordy);
             int yForTB = levelManager.TopGridIndexPerColumn[tetrisBlock.Coordx] + 1;
             Vector3 newPosforTB = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(tetrisBlock.Coordx, yForTB));
             Vector3 disp = newPosforTB - tetrisBlock.transform.position;
@@ -135,7 +178,7 @@ public class UIManager : MonoBehaviour
     }
     public void MoveHaloAndSpawner(Vector3 RectCoords)
     {
-        if(gridManager.isDrawing)
+        if (gridManager.isDrawing)
         {
             gridManager.EndDraw();
         }
@@ -152,6 +195,8 @@ public class UIManager : MonoBehaviour
 
     public void AdjustRenderStuff()
     {
+        ScreenStartPos.x = PlayArea.transform.position.x;
+        ScreenStartPos.y = PlayArea.transform.position.y;
         SpaceConversionUtility.TetrisScreenBounds = SpaceConversionUtility.RectTransformToScreenSpace(TetrisImage.rectTransform);
         float w = SpaceConversionUtility.TetrisScreenBounds.width;
         float h = SpaceConversionUtility.TetrisScreenBounds.height;
@@ -210,7 +255,7 @@ public class UIManager : MonoBehaviour
 
     void PositionLoseBar()
     {
-        LoseBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, ((SpaceConversionUtility.TetrisScreenBounds.width / ScreenWidthInBlocks)/SpaceConversionUtility.CanvasScale.y)*levelManager.LoseLevels);
+        LoseBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, ((SpaceConversionUtility.TetrisScreenBounds.width / ScreenWidthInBlocks) / SpaceConversionUtility.CanvasScale.y) * levelManager.LoseLevels);
     }
 
 }

@@ -109,6 +109,10 @@ public class LevelManager : MonoBehaviour
                 level--;
             }
         }
+        if(destroyed>0)
+        {
+uIManager.ShakeItUp();
+        }
         if (Levels.Count == 0 || LevelHolder.childCount == 0)
         {
             gameManager.isPlaying = false;
