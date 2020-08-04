@@ -51,7 +51,14 @@ public class LevelManager : MonoBehaviour
     {
         if (Tutorial)
         {
-            if (TutorialObjectsEnabledPerLevel != null && Stage < TutorialObjectsEnabledPerLevel.Length) TutorialObjectsEnabledPerLevel[Stage].SetActive(true);
+            foreach (var a in TutorialObjectsEnabledPerLevel)
+            {
+             a.SetActive(false);   
+            }
+            if (TutorialObjectsEnabledPerLevel != null && Stage < TutorialObjectsEnabledPerLevel.Length) 
+            {
+                TutorialObjectsEnabledPerLevel[Stage].SetActive(true);
+            }
            /* else
             {
                 for (int T = 0; T <= 3; T++)
