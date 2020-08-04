@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class LevelManager : MonoBehaviour
 
     public int MaxLevelsToGenerateInTotal;
     public int LoseLevels;
+
+    public bool Tutorial;
 
     UIManager uIManager;
     public List<List<LevelBlock>> Levels;
@@ -42,18 +45,61 @@ public class LevelManager : MonoBehaviour
 
     public void Initialize()
     {
-        Random.InitState((int)(Stage*Seed + Mathf.Pow(Stage,2f) + Seed));
+        if (Tutorial)
+        {
+            created = 0;
+            level=0;
+            Levels = new List<List<LevelBlock>>(4);
+            MakeTutorial();
+            MakeTutorial();
+            if (Stage == 2) { MakeTutorial(); MakeTutorial(); }
+            if (Stage == 4) { MakeTutorial(); MaxLevelsToGenerateInTotal = 8;}
+            if (Stage >= 5) { SceneManager.LoadScene(2);}
+            Analytics.LogLevelStarted(Stage);
+            gameManager.isPlaying = true;
+            lastTime = Time.time;
+            return;
+        }
+
+        Random.InitState((int)(Stage * Seed + Mathf.Pow(Stage, 2f) + Seed));
+        
+        if(Stage > 7)
+        {
+            MaxLevelsToGenerateInTotal = 6 + Stage;
+            StartingLevelsCount = 5;
+        }
+
+        if(Stage >= 9 && Stage < 16)
+        {
+            gridManager.EnableAll();
+            gridManager.DisabledTileCount = 1;
+            gridManager.DisableRandomly();
+        }
+
+        if(Stage >= 16)
+        {
+            gridManager.EnableAll();
+            gridManager.DisabledTileCount = 2;
+            gridManager.DisableRandomly();
+        }
+
+        if(Stage >= 20)
+        {
+            newLevelTimeInSeconds = 3.7f;
+        }
+
         prev = new List<int>(0);
-        for(int i = LevelHolder.childCount -1; i >= 0; i--)
+        for (int i = LevelHolder.childCount - 1; i >= 0; i--)
         {
             Destroy(LevelHolder.GetChild(i).gameObject);
         }
         Levels = new List<List<LevelBlock>>(SpaceConversionUtility.ScreenHeightInBlocks);
         created = 0;
-        for (int i = 0; i < StartingLevelsCount; i++) 
-        {AddLevel();
-         lastTime = Time.time; 
-        } 
+        for (int i = 0; i < StartingLevelsCount; i++)
+        {
+            AddLevel();
+            lastTime = Time.time;
+        }
         Analytics.LogLevelStarted(Stage);
         gameManager.isPlaying = true;
     }
@@ -74,7 +120,7 @@ public class LevelManager : MonoBehaviour
     bool WillCheckForCompletion = false;
     public void CheckLevelCompletionDelayed(float delay)
     {
-        if(WillCheckForCompletion) return;
+        if (WillCheckForCompletion) return;
         WillCheckForCompletion = true;
         Invoke("CheckLevelCompletion", delay);
     }
@@ -83,7 +129,7 @@ public class LevelManager : MonoBehaviour
     public void CheckLevelCompletion()
     {
         WillCheckForCompletion = false;
-        if(!gameManager.isPlaying) return;
+        if (!gameManager.isPlaying) return;
         int destroyed = 0;
         for (int i = Levels.Count - 1; i >= 0; i--)
         {
@@ -109,9 +155,9 @@ public class LevelManager : MonoBehaviour
                 level--;
             }
         }
-        if(destroyed>0)
+        if (destroyed > 0)
         {
-uIManager.ShakeItUp();
+            uIManager.ShakeItUp();
         }
         if (Levels.Count == 0 || LevelHolder.childCount == 0)
         {
@@ -200,7 +246,68 @@ uIManager.ShakeItUp();
         return ThisLevel;
     }
 
+    public List<LevelBlock> CreateNewTutorialLevel()
+    {
+        created++;
+        level++;
+        List<LevelBlock> ThisLevel = new List<LevelBlock>(uIManager.ScreenWidthInBlocks);
+        LevelHolder.position += SpaceConversionUtility.UpDir;
+        for (int i = 0; i < uIManager.ScreenWidthInBlocks; i++)
+        {
+            if (Stage == 0)
+            {
+                if (i == 0 || i == 1)
+                {
+                    ThisLevel.Add(null);
+                    continue;
+                }
+            }
+            else if (Stage == 1)
+            {
+                if (i == 3 || i == 4)
+                {
+                    ThisLevel.Add(null);
+                    continue;
+                }
+            }
+            else if (Stage == 2)
+            {
+                if (i == 2)
+                {
+                    ThisLevel.Add(null);
+                    continue;
+                }
+            }
+            else if (Stage == 3)
+            {
+                if (created == 1)
+                {
+                    if (i == 1)
+                    {
+                        ThisLevel.Add(null);
+                        continue;
+                    }
+                } 
+                if (i == 2 || i == 3)
+                {
+                    ThisLevel.Add(null);
+                    continue;
+                }
+            }
+            else if (Stage == 4)
+            {
+                if (i == 1 || i == 2)
+                {
+                    ThisLevel.Add(null);
+                    continue;
+                }
+            }
 
+            ThisLevel.Add(GenerateBlock(new Vector2Int(i, 0)));
+        }
+
+        return ThisLevel;
+    }
 
     public void ReCalcTopPos()
     {
@@ -239,18 +346,26 @@ uIManager.ShakeItUp();
         CheckLevelCompletionDelayed(gameManager.LoseCheckDelayAfterLevelAddition);
     }
 
+    public void MakeTutorial()
+    {
+        Levels.Add(CreateNewTutorialLevel());
+        ReCalcTopPos();
+        uIManager.MoveSpawnerOnly();
+        CheckLevelCompletionDelayed(gameManager.LoseCheckDelayAfterLevelAddition);
+    }
+
     public void Restart()
     {
-    uIManager.GameScreen();
-    Initialize();
+        uIManager.GameScreen();
+        Initialize();
     }
 
     public void Next()
     {
-    Stage++;
-    uIManager.GameScreen();
-    gridManager.ShuffleTileTextures();
-    Initialize();
+        Stage++;
+        uIManager.GameScreen();
+        gridManager.ShuffleTileTextures();
+        Initialize();
     }
 
     private void Update()
@@ -259,7 +374,8 @@ uIManager.ShakeItUp();
             if (Time.time - lastTime >= newLevelTimeInSeconds)
             {
                 lastTime = Time.time;
-                AddLevel();
+                if (!Tutorial) AddLevel();
+                else MakeTutorial();
             }
         //        Debug.Log(Levels.Count);
     }

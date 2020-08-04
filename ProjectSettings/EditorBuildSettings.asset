@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Elephant/elephant_scene.unity
     guid: 47a686e3b898646ae802a7832a649176
   - enabled: 1
-    path: Assets/Tetris Draw/Scenes/SampleScene.unity
+    path: Assets/Tetris Draw/Scenes/TutorialLevels.unity
+    guid: 5bcaf1ad812ff5080940d4362d704add
+  - enabled: 1
+    path: Assets/Tetris Draw/Scenes/Standard Game.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}

@@ -65,7 +65,7 @@ public class GridManager : MonoBehaviour
     }
     void Start()
     {
-        DisableRandomly();
+     //   DisableRandomly();
     }
 
     public void InitializeBlock()
@@ -81,7 +81,8 @@ public class GridManager : MonoBehaviour
 
     }
 
-    void DisableRandomly()
+   
+    public void DisableRandomly()
     {
         int disabled = 0;
         for (int i = 0; i < AllTiles.Count; i++)
@@ -94,6 +95,12 @@ public class GridManager : MonoBehaviour
                 AllTiles[i].ChangeDraw(GridTile.STATE.DISABLED);
                 disabled++;
             }
+        }
+    }
+    public void EnableAll()
+    { for (int i = 0; i < AllTiles.Count; i++)
+        {
+                AllTiles[i].ChangeDraw(GridTile.STATE.AVAILABLE);
         }
     }
 

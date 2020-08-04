@@ -52,7 +52,8 @@ public class UIManager : MonoBehaviour
         if (ShakeIt)
         {
             multiplier++;
-            ShakeFinishTime = Time.time + ShakeDuration * multiplier;
+            multiplier++;
+            ShakeFinishTime = Time.time + (ShakeDuration * multiplier);
 
         }
         else
@@ -66,7 +67,7 @@ public class UIManager : MonoBehaviour
     private void OnDrawGizmos()
     {
 
-        if (!Application.isPlaying || Time.frameCount < 10) return;
+        if (!Application.isPlaying || Time.frameCount - StartFrame < 10) return;
         for (int i = 0; i < ScreenWidthInBlocks; i++)
         {
             for (int j = 0; j < 20; j++)
@@ -95,7 +96,7 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        if (Time.frameCount == 1)
+        if (Time.frameCount - StartFrame == 1)
         {
             AdjustRenderStuff();
             GenerateGrid();
@@ -106,7 +107,7 @@ public class UIManager : MonoBehaviour
 
             levelManager.Initialize();
         }
-        else if (Time.frameCount > 1)
+        else if (Time.frameCount - StartFrame > 1)
         {
             if (Input.GetMouseButton(0) && gameManager.isPlaying)
             {
@@ -130,8 +131,8 @@ public class UIManager : MonoBehaviour
                     float TimeLeft = ShakeFinishTime - Time.time;
                     float decay = Mathf.Pow(TimeLeft, ShakeDecayInverseSmoothness);
                     Vector3 ppos = PlayArea.position;
-                    ppos.x = ScreenStartPos.x + Mathf.Sin(Time.time * ShakeSpeed * multiplier) * ShakeAmount * multiplier * decay;
-                    ppos.y = ScreenStartPos.y + (Mathf.Sin(Time.time * ShakeSpeed * multiplier) * ShakeAmount * multiplier * decay);
+                    ppos.x = ScreenStartPos.x + Mathf.Sin(Time.time * ShakeSpeed) * ShakeAmount * multiplier * decay;
+                    ppos.y = ScreenStartPos.y + (Mathf.Sin(Time.time * ShakeSpeed) * ShakeAmount * multiplier * decay);
                     PlayArea.position = ppos;
                 }
             }
@@ -210,7 +211,12 @@ public class UIManager : MonoBehaviour
         // TetrisCamera.aspect = w / h;
         // TetrisCamera.ResetAspect();
     }
+    int StartFrame = 0;
+    void Start()
+    {
+        StartFrame = Time.frameCount;
 
+    }
     public void GenerateGrid()
     {
         float dist = Vector3.Dot((gameManager.SpawnLocation.position - TetrisCamera.transform.position), TetrisCamera.transform.forward);
