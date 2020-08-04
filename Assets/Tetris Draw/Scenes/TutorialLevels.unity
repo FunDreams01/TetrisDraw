@@ -2282,11 +2282,12 @@ MonoBehaviour:
   HaloTransparency: 2.5
   HaloColor: {r: 1, g: 0.9604804, b: 0.7783019, a: 1}
   HaloWidthInBlocks: 0
+  ExplosionMargin: 0
   SpawnerOffsetFromTop: 3
   ShakeSpeed: 20
   ShakeAmount: 1.8
   ShakeDuration: 0.7
-  ShakeDecayInverseSmoothness: 0.9
+  ShakeDecayInverseSmoothness: 0.4
   TetrisImage: {fileID: 341752608}
   PlayArea: {fileID: 1988277707}
   TetrisCamera: {fileID: 963194227}
@@ -2294,6 +2295,8 @@ MonoBehaviour:
   WinScreen: {fileID: 1356884403}
   LoseScreen: {fileID: 2015230514}
   LoseBar: {fileID: 746945571}
+  RowExplosion: {fileID: 2337884446080220111, guid: 4d8f1b4df358c5042a30c05b9e8dd82f,
+    type: 3}
   Coordx: 0
 --- !u!4 &2095080337
 Transform:

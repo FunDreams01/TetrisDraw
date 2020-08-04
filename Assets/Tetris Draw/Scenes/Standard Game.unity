@@ -1902,6 +1902,7 @@ MonoBehaviour:
   MaxLevelsToGenerateInTotal: 12
   LoseLevels: 11
   Tutorial: 0
+  TutorialObjectsEnabledPerLevel: []
   HoleProbability: 0.25
   IncreaseInVerticalProbability: 0.2
   IncreaseInHorizontalProbability: 0.1
@@ -1988,8 +1989,8 @@ MonoBehaviour:
   SpawnLocation: {fileID: 0}
   BlockDisappearDelay: 0.07
   LoseCheckDelayAfterLevelAddition: 0.03
-  BlockDropSpeedInitialAcceleration: 15
-  BlockDropSpeedJerkMultiplier: 3
+  BlockDropSpeedInitialAcceleration: 16
+  BlockDropSpeedJerkMultiplier: 3.3
   isPlaying: 0
 --- !u!4 &1604980005
 Transform:
@@ -2289,6 +2290,7 @@ MonoBehaviour:
   HaloTransparency: 2.5
   HaloColor: {r: 1, g: 0.9604804, b: 0.7783019, a: 1}
   HaloWidthInBlocks: 0
+  ExplosionMargin: 3
   SpawnerOffsetFromTop: 3
   ShakeSpeed: 20
   ShakeAmount: 1.5
@@ -2301,6 +2303,8 @@ MonoBehaviour:
   WinScreen: {fileID: 1356884403}
   LoseScreen: {fileID: 2015230514}
   LoseBar: {fileID: 746945571}
+  RowExplosion: {fileID: 2337884446080220111, guid: 4d8f1b4df358c5042a30c05b9e8dd82f,
+    type: 3}
   Coordx: 0
 --- !u!4 &2095080337
 Transform:

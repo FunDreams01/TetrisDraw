@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,8 +14,9 @@ public class UIManager : MonoBehaviour
     public float HaloTransparency;
     public Color HaloColor;
     [HideInInspector] public int HaloWidthInBlocks;
+    public float ExplosionMargin;
     public float SpawnerOffsetFromTop;
-    [Header ("Screen Shake")]
+    [Header("Screen Shake")]
     public float ShakeSpeed;
     public float ShakeAmount, ShakeDuration, ShakeDecayInverseSmoothness;
 
@@ -26,12 +28,18 @@ public class UIManager : MonoBehaviour
     public GameObject WinScreen, LoseScreen;
     public GameObject LoseBar;
 
+    public GameObject RowExplosion;
+
     //PRIVATE VARS
     GameManager gameManager;
     LevelManager levelManager;
     RectTransform Halo;
     GridManager gridManager;
     Vector2 ScreenStartPos;
+
+    TextMeshProUGUI StageIndicator;
+
+    
 
     bool ShakeIt;
     //UNITY FUNCTIONS
@@ -259,7 +267,31 @@ public class UIManager : MonoBehaviour
         Halo.SetSiblingIndex(1);
     }
 
-    void PositionLoseBar()
+    public GameObject AddExplositionFX(int row)
+    {
+        GameObject re = Instantiate(RowExplosion, Vector3.zero, Quaternion.identity);
+        re.transform.SetParent(HaloParent, false);
+        RectTransform rt = re.GetComponent<RectTransform>();
+        /* Vector2 top_left_zero = new Vector2(0, 1f);
+        rt.anchorMin = top_left_zero;
+        rt.anchorMax = top_left_zero;
+        rt.pivot = top_left_zero; */
+        rt.localScale = Vector3.one;
+        rt.anchoredPosition = new Vector2(0, (((SpaceConversionUtility.TetrisScreenBounds.width / ScreenWidthInBlocks) / SpaceConversionUtility.CanvasScale.y) * row) + ExplosionMargin);
+        Vector2 sD = rt.sizeDelta;
+        sD.y = ((SpaceConversionUtility.TetrisScreenBounds.width / ScreenWidthInBlocks) / SpaceConversionUtility.CanvasScale.y) - 2*ExplosionMargin;
+        rt.sizeDelta = sD;
+        return re;
+    }
+
+    public void SetStage(string Stage)
+    {
+        if(StageIndicator!=null)
+        StageIndicator.text = Stage;
+        else Debug.LogError("StageIndicator is Null on UIManager. Stage: " + Stage);
+    }
+
+    public void PositionLoseBar()
     {
         LoseBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, ((SpaceConversionUtility.TetrisScreenBounds.width / ScreenWidthInBlocks) / SpaceConversionUtility.CanvasScale.y) * levelManager.LoseLevels);
     }

@@ -21,6 +21,7 @@ public class LevelManager : MonoBehaviour
     public int LoseLevels;
 
     public bool Tutorial;
+    public GameObject[] TutorialObjectsEnabledPerLevel;
 
     UIManager uIManager;
     public List<List<LevelBlock>> Levels;
@@ -36,25 +37,33 @@ public class LevelManager : MonoBehaviour
     public float IncreaseInHorizontalProbability;
     private void Awake()
     {
+        Stage = PlayerPrefs.GetInt("Stage",Stage);
+        if(Stage < 5 && SceneManager.GetActiveScene().buildIndex != 1) SceneManager.LoadScene(1);
         gridManager = FindObjectOfType<GridManager>();
         uIManager = FindObjectOfType<UIManager>();
         GameObject LevelHolderGO = new GameObject("LevelHolder");
         LevelHolder = LevelHolderGO.transform;
         gameManager = FindObjectOfType<GameManager>();
+        uIManager.SetStage(Stage.ToString());
     }
 
     public void Initialize()
     {
         if (Tutorial)
         {
+            if(TutorialObjectsEnabledPerLevel!=null && Stage < TutorialObjectsEnabledPerLevel.Length) TutorialObjectsEnabledPerLevel[Stage].SetActive(true);
+            if (Stage >= 5) { SceneManager.LoadScene(2); }
             created = 0;
-            level=0;
+            level = 0;
+            for (int i = LevelHolder.childCount - 1; i >= 0; i--)
+            {
+                Destroy(LevelHolder.GetChild(i).gameObject);
+            }
             Levels = new List<List<LevelBlock>>(4);
             MakeTutorial();
             MakeTutorial();
             if (Stage == 2) { MakeTutorial(); MakeTutorial(); }
-            if (Stage == 4) { MakeTutorial(); MaxLevelsToGenerateInTotal = 8;}
-            if (Stage >= 5) { SceneManager.LoadScene(2);}
+            if (Stage == 4) { MakeTutorial(); MaxLevelsToGenerateInTotal = 8; LoseLevels = 6; uIManager.PositionLoseBar();}
             Analytics.LogLevelStarted(Stage);
             gameManager.isPlaying = true;
             lastTime = Time.time;
@@ -62,30 +71,44 @@ public class LevelManager : MonoBehaviour
         }
 
         Random.InitState((int)(Stage * Seed + Mathf.Pow(Stage, 2f) + Seed));
-        
-        if(Stage > 7)
+
+        if (Stage > 7)
         {
-            MaxLevelsToGenerateInTotal = 6 + Stage;
+            MaxLevelsToGenerateInTotal = Mathf.Min(6 + Stage,35);
             StartingLevelsCount = 5;
         }
 
-        if(Stage >= 9 && Stage < 16)
+        if (Stage >= 9 && Stage < 16)
         {
             gridManager.EnableAll();
             gridManager.DisabledTileCount = 1;
             gridManager.DisableRandomly();
         }
 
-        if(Stage >= 16)
+        if (Stage >= 16)
         {
             gridManager.EnableAll();
             gridManager.DisabledTileCount = 2;
             gridManager.DisableRandomly();
         }
 
-        if(Stage >= 20)
+        if (Stage >= 20)
         {
-            newLevelTimeInSeconds = 3.7f;
+            newLevelTimeInSeconds = 4.5f;
+        }
+
+
+        //I'm bored and working at 6AM, so here's an easter-egg crazy level.
+        if (Stage == 50)
+        {
+            uIManager.SetStage("!!!");
+            LoseLevels = 8;
+            uIManager.PositionLoseBar();
+            StartingLevelsCount = 4;
+            newLevelTimeInSeconds = 2.9f;
+            gridManager.EnableAll();
+            gridManager.DisabledTileCount = 3;
+            gridManager.DisableRandomly();
         }
 
         prev = new List<int>(0);
@@ -128,21 +151,19 @@ public class LevelManager : MonoBehaviour
     //REMEMBER TO OPTIMIZE?
     public void CheckLevelCompletion()
     {
+        int og_levelCount = Levels.Count;
         WillCheckForCompletion = false;
         if (!gameManager.isPlaying) return;
         int destroyed = 0;
         for (int i = Levels.Count - 1; i >= 0; i--)
         {
-            for (int m = 0; m < destroyed; m++)
-                for (int k = 0; k < Levels[i].Count; k++)
-                {
-                    if (Levels[i][k] != null)
-                        Levels[i][k].transform.position -= SpaceConversionUtility.UpDir;
-                }
+            int this_destroyed = 0;
+            bool remove = false;
+
 
             if (!Levels[i].Contains(null))
             {
-                destroyed++;
+                this_destroyed++;
                 for (int j = 0; j < Levels[i].Count; j++)
                 {
                     LevelBlock tb = Levels[i][j];
@@ -151,9 +172,19 @@ public class LevelManager : MonoBehaviour
                     tb.PlayParticles();
                     //Destroy(tb.gameObject);
                 }
-                Levels.RemoveAt(i);
+                remove = true;
                 level--;
             }
+            if (!remove)
+                for (int m = 0; m < destroyed; m++)
+                    for (int k = 0; k < Levels[i].Count; k++)
+                    {
+                        if (Levels[i][k] != null)
+                            Levels[i][k].transform.position -= SpaceConversionUtility.UpDir;
+                    }
+            destroyed += this_destroyed;
+            if (remove) uIManager.AddExplositionFX(og_levelCount - i).SetActive(true);
+            if (remove) Levels.RemoveAt(i);
         }
         if (destroyed > 0)
         {
@@ -163,6 +194,7 @@ public class LevelManager : MonoBehaviour
         {
             gameManager.isPlaying = false;
             Analytics.LogLevelSucceeded();
+            PlayerPrefs.SetInt("Stage",Stage+1);
             uIManager.Win();
         }
         ReCalcTopPos();
@@ -287,7 +319,7 @@ public class LevelManager : MonoBehaviour
                         ThisLevel.Add(null);
                         continue;
                     }
-                } 
+                }
                 if (i == 2 || i == 3)
                 {
                     ThisLevel.Add(null);
@@ -363,6 +395,7 @@ public class LevelManager : MonoBehaviour
     public void Next()
     {
         Stage++;
+        uIManager.SetStage(Stage.ToString());
         uIManager.GameScreen();
         gridManager.ShuffleTileTextures();
         Initialize();

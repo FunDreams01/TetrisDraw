@@ -327,7 +327,7 @@ public class GridManager : MonoBehaviour
     public void SpawnBlock()
     {
 
-        if (UpperBlockHolder.transform.childCount < 2) return;
+      //  if (UpperBlockHolder.transform.childCount < 2) return;
         UpperBlockHolder.transform.SetParent(null);
         //Vector3 newpos = BlockHolder.transform.position;
         UpperBlockHolder.transform.position = gameManager.SpawnLocation.position;
