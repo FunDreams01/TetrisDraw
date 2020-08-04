@@ -16,9 +16,9 @@ MonoBehaviour:
   clientTokens:
   - 
   appIds:
-  - 0
+  - 701145860741410
   appLabels:
-  - App Name
+  - Tetris Draw
   cookie: 1
   logging: 1
   status: 1

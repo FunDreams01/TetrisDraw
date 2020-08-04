@@ -25,21 +25,100 @@ MonoBehaviour:
   UserMessagesSubmitted: 0
   UserMessagesFailed: 0
   CustomArea: 
-  gameKey: []
-  secretKey: []
-  Build: []
-  SelectedPlatformStudio: []
-  SelectedPlatformGame: []
-  SelectedPlatformGameID: 
-  SelectedStudio: 
-  SelectedGame: 
-  NewVersion: 
-  Changes: 
-  SignUpOpen: 1
-  StudioName: 
-  GameName: 
-  EmailGA: 
-  IntroScreen: 1
+  gameKey:
+  - 05358e08156a64f2e5a7aed7c23becc6
+  secretKey:
+  - 9d4c94b237104472601e99e984909d686a4bfe5e
+  Build:
+  - 1.0
+  SelectedPlatformStudio:
+  - Abdulrahman adham
+  SelectedPlatformGame:
+  - Tetris Draw
+  SelectedPlatformGameID: a8ae0100
+  SelectedStudio: 01000000
+  SelectedGame: 0d000000
+  NewVersion: 6.2.4
+  Changes: '6.2.4
+
+    - fixed progression events with scores (android)
+
+
+    6.2.3
+
+    -
+    editor ui error fix
+
+
+    6.2.2
+
+    - tvos compile fix
+
+
+    6.2.1
+
+    - added
+    better error messages for API calls potentially being removed in the future
+
+
+    6.2.0
+
+    -
+    exposed functions to get AB testing id and variant id
+
+
+    6.1.5
+
+    - fixed
+    bug in ui for settings.asset
+
+
+    6.1.4
+
+    - fixed instant app bug(android)
+
+    -
+    remember to update your proguard file (https://gameanalytics.com/docs/item/unity-sdk#proguard-only-android)
+
+
+    6.1.3
+
+    -
+    fixed sign up function
+
+    - added organizations to games overview
+
+    - you
+    might need to delete the settings.asset file and set the keys again for the different
+    platforms
+
+
+    6.1.2
+
+    - fixed ios compile error (ios)
+
+
+    6.1.1
+
+    -
+    added missing instant app dependency (android)
+
+
+    6.1.0
+
+    - added new impression
+    event, see documentation page for more info (android, ios)
+
+
+    6.0.15
+
+    -
+    added support for android instant apps (android)'
+  SignUpOpen: 0
+  StudioName: FunDreamStudios
+  GameName: Tetris Draw
+  EmailGA: abdulrhman1a1@gmail.com
+  IntroScreen: 0
   InfoLogEditor: 1
   InfoLogBuild: 1
   VerboseLogBuild: 0
@@ -52,13 +131,13 @@ MonoBehaviour:
   CustomDimensions03: []
   ResourceItemTypes: []
   ResourceCurrencies: []
-  LastCreatedGamePlatform: 0
-  Platforms: 
-  CurrentInspectorState: 0
+  LastCreatedGamePlatform: -1
+  Platforms: 08000000
+  CurrentInspectorState: 1
   ClosedHints: 
   DisplayHints: 0
   DisplayHintsScrollState: {x: 0, y: 0}
-  Logo: {fileID: 0}
+  Logo: {fileID: 2800000, guid: 98df8f9c5678a4e5d964caa1244e8958, type: 3}
   UpdateIcon: {fileID: 0}
   InfoIcon: {fileID: 0}
   DeleteIcon: {fileID: 0}
@@ -80,7 +159,7 @@ MonoBehaviour:
   IncludeGooglePlay: 1
   FpsCriticalThreshold: 20
   FpsCirticalSubmitInterval: 1
-  PlatformFoldOut: 
+  PlatformFoldOut: 01
   CustomDimensions01FoldOut: 0
   CustomDimensions02FoldOut: 0
   CustomDimensions03FoldOut: 0
