@@ -31,8 +31,6 @@ public class Analytics
   
     public static void LogLevelFailed()
     {
-        
-
         if(last_level == -1) {Debug.LogError("Called LevelFailed without starting it."); return;}
         Debug.Log("Logging Level Fail: " + last_level);
         if(Application.isEditor) {Debug.LogWarning("Analytics will not log in Editor");last_level= -1; return;}
