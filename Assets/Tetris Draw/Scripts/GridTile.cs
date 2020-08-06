@@ -35,15 +35,16 @@ public class GridTile : MonoBehaviour
     {
         BlockPreviewIndex = Index;
         BlockPreview.texture = gridManager.CorrespondingImages[Index];
-        if(UpperBlock!=null)
+        if (UpperBlock != null)
         {
-        UpperBlock.GetComponentInChildren<BlockRandom>().Init(BlockPreviewIndex);
+            UpperBlock.GetComponentInChildren<BlockRandom>().Init(BlockPreviewIndex);
         }
     }
 
     public void ChangeDraw(STATE NewState)
     {
         ArrowEndPoint.SetActive(NewState == STATE.SELECTED);
+
         switch (NewState)
         {
             case STATE.SELECTED:

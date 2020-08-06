@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpaceConversionUtility
 {
-    public static Vector3 BottomLeftSpawnPos, LeftDir,UpDir, CanvasScale;
+    public static Vector3 BottomLeftSpawnPos, LeftDir, UpDir, CanvasScale;
     public static Rect TetrisScreenBounds;
     public static int ScreenWidthInBlocks, ScreenHeightInBlocks;
     public static float BlockWidth;
@@ -34,9 +34,24 @@ public class SpaceConversionUtility
     {
         float stepsize = (TetrisScreenBounds.width / CanvasScale.x) / ScreenWidthInBlocks;
         Coordx = Mathf.RoundToInt(pos.x / stepsize);
-        Coordx = Mathf.Clamp(Coordx,CoordxMin,CoordxMax);
+        Coordx = Mathf.Clamp(Coordx, CoordxMin, CoordxMax);
         pos.x = stepsize * Coordx;
         return pos;
     }
 
+
+    public static bool IsMouseOverRect(RectTransform _rectTransfiorm)
+    {/* 
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_rectTransfiorm, Input.mousePosition, Camera.main, out localPoint);
+        bool res = _rectTransfiorm.rect.Contains(localPoint);
+        Debug.Log(res + " " +  localPoint); */
+Vector2 localMousePosition = _rectTransfiorm.InverseTransformPoint(Input.mousePosition);
+        if (_rectTransfiorm.rect.Contains(localMousePosition))
+        {
+            return true;
+        }
+        return false;
+
+    }
 }

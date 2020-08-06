@@ -2489,7 +2489,7 @@ MonoBehaviour:
   ShakeSpeed: 20
   ShakeAmount: 1.5
   ShakeDuration: 0.6
-  ShakeDecayInverseSmoothness: 0.7
+  ShakeDecayInverseSmoothness: 0.6
   TetrisImage: {fileID: 341752608}
   PlayArea: {fileID: 1988277707}
   TetrisCamera: {fileID: 963194227}
