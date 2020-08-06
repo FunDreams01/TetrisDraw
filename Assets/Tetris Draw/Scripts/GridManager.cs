@@ -216,7 +216,6 @@ public class GridManager : MonoBehaviour
     public void EndDraw()
     {
 
-        FindObjectOfType<TestForTouch>().Test();
         RegisterLastDrawn();
         while (DrawStack.Count > 0)
         {
@@ -249,10 +248,10 @@ public class GridManager : MonoBehaviour
             EndDraw();
         }
 
+
         //CANCEL
         if (/* !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() || */ !gameManager.isPlaying || !SpaceConversionUtility.IsMouseOverRect(DrawPanel))
         {
-            FindObjectOfType<TestForTouch>().Test2();
             EndDraw();
         }
         if (CurrentArrow != null)

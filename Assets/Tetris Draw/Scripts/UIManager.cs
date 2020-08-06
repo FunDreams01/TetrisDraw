@@ -57,6 +57,7 @@ public class UIManager : MonoBehaviour
     float ShakeFinishTime;
     public void ShakeItUp()
     {
+        AndroidManager.HapticFeedback();
         if (ShakeIt)
         {
             multiplier++;
@@ -119,11 +120,12 @@ public class UIManager : MonoBehaviour
         {
             if (Input.GetMouseButton(0) && gameManager.isPlaying)
             {
-                Vector2 outpos;
-                if (SpaceConversionUtility.ScreenSpaceToRectSpace(Input.mousePosition, out outpos))
+                 Vector2 outpos;
+               if (SpaceConversionUtility.ScreenSpaceToRectSpace(Input.mousePosition, out outpos))
                 {
-                    outpos.x -= SpaceConversionUtility.CanvasScale.x * Halo.sizeDelta.x;
-                    MoveHaloAndSpawner(outpos);
+                    Vector2 screenpos = Input.mousePosition;
+                    screenpos.x -= SpaceConversionUtility.CanvasScale.x * Halo.sizeDelta.x * 0.5f;
+                    MoveHaloAndSpawnerByScreenPos(screenpos); 
                 }
             }
 
@@ -198,6 +200,22 @@ public class UIManager : MonoBehaviour
         v = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(Coordx, SpaceConversionUtility.ScreenHeightInBlocks - SpawnerOffsetFromTop));
 
         //  v = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(Coordx, ));
+        gameManager.SpawnLocation.position = v;
+        MoveSpawnerOnly();
+    }
+   public void MoveHaloAndSpawnerByScreenPos(Vector3 ScreenPos)
+    {
+        if (gridManager.isDrawing)
+        {
+            gridManager.EndDraw();
+        }
+        Halo.position = new Vector2(ScreenPos.x, Halo.position.y);
+       Halo.anchoredPosition = SpaceConversionUtility.SnapRectPosToGridRectPos(Halo.anchoredPosition, out Coordx, 0, SpaceConversionUtility.ScreenWidthInBlocks - HaloWidthInBlocks);
+        Vector3 v = gameManager.SpawnLocation.position;
+
+        v = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(Coordx, SpaceConversionUtility.ScreenHeightInBlocks - SpawnerOffsetFromTop));
+
+         // v = SpaceConversionUtility.GridSpaceToWorldSpace(new Vector2(Coordx, ));
         gameManager.SpawnLocation.position = v;
         MoveSpawnerOnly();
     }
